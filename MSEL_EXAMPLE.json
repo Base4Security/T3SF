@@ -1,0 +1,112 @@
+[
+ {
+    "#": 1,
+    "Real Time": "07:29 AM",
+    "Date": "Monday 9:30 AM",
+    "Subject": "Anomalous Files Detected",
+    "From": "Amazon Web Services",
+    "Player": "Information Security",
+    "Script": "We detected some anomalous files in your S3 Bucket.",
+    "Picture Name": "S3_Bucket.png",
+    "Photo": "https://img2.helpnetsecurity.com/posts2018/aws-s3-buckets-public.jpg",
+    "Profile": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Amazon_Web_Services_Logo.svg/1024px-Amazon_Web_Services_Logo.svg.png"
+ },
+ {
+   "#": 2,
+   "Real Time": "07:30 PM",
+   "Date": "Monday 9:40 AM",
+   "Subject": "SOC - Internal Phising Alert",
+   "From": "SOC - BASE4",
+   "Player": "SRE",
+   "Script": "Please note that we detected a large number of phishing emails coming from different email addresses.\n\nIgnore messages from emails with the address @notanemail.net",
+   "Picture Name": "Base_4_SOC.jpg",
+   "Profile": "https://foreseeti.com/wp-content/uploads/2021/09/Ska%CC%88rmavbild-2021-09-02-kl.-15.44.24.png"
+ },
+ {
+   "#": 3,
+   "Real Time": "07:31 PM",
+   "Date": "Monday 10:00 AM",
+   "Subject": "New possible data breach",
+   "From": "Internal",
+   "Player": "Data Governance",
+   "Script": "Hey Guys!\n\nI found some files from the company exposed online, please take a look!",
+   "Picture Name": "attachment.jpg",
+   "Photo": "https://assets-global.website-files.com/5efc3ccdb72aaa7480ec8179/60dc1c3c984ef85123cb0f7b_LinkedIn-Data-Breach-700-million-.png"
+ },
+ {
+   "#": 4,
+   "Real Time": "07:31 PM",
+   "Date": "Monday 10:00 AM",
+   "Subject": "MIT vs GPL",
+   "From": "Joaquin Lanfranconi",
+   "Player": "Legal",
+   "Script": "Hey folks!\n\nI'm about to release a new tool, but I'm not sure which license is better, can you help with this one?\n\nThanks in advance!",
+   "Picture Name": "attachment.jpg"
+ },
+ {
+   "#": 5,
+   "Real Time": "07:32 PM",
+   "Date": "Monday 11:00 AM",
+   "Subject": "I've encrypted all your files!",
+   "From": "h4x0r@notanemail.net",
+   "Player": "PR/Comm",
+   "Script": "Hello, \n\nI'm inside your company, I've encrypted all your files, if you want to recover them, check the attached file.",
+   "Picture Name": "attachment.jpg",
+   "Photo": "https://cdn2.hubspot.net/hubfs/486579/lp/academy/malware/wannacry_screenshot.png"
+ },
+ {
+   "#": 6,
+   "Real Time": "07:32 PM",
+   "Date": "Monday 11:00 AM",
+   "Subject": "I've encrypted all your files!",
+   "From": "h4x0r@notanemail.net",
+   "Player": "Information Security",
+   "Script": "Hello, \n\nI'm inside your company, I've encrypted all your files, if you want to recover them, check the attached file.",
+   "Picture Name": "attachment.jpg",
+   "Photo": "https://cdn2.hubspot.net/hubfs/486579/lp/academy/malware/wannacry_screenshot.png"
+ },
+ {
+   "#": 7,
+   "Real Time": "07:32 PM",
+   "Date": "Monday 11:00 AM",
+   "Subject": "I've encrypted all your files!",
+   "From": "h4x0r@notanemail.net",
+   "Player": "SRE",
+   "Script": "Hello, \n\nI'm inside your company, I've encrypted all your files, if you want to recover them, check the attached file.",
+   "Picture Name": "attachment.jpg",
+   "Photo": "https://cdn2.hubspot.net/hubfs/486579/lp/academy/malware/wannacry_screenshot.png"
+ },
+ {
+   "#": 8,
+   "Real Time": "07:32 PM",
+   "Date": "Monday 11:00 AM",
+   "Subject": "I've encrypted all your files!",
+   "From": "h4x0r@notanemail.net",
+   "Player": "Data Governance",
+   "Script": "Hello, \n\nI'm inside your company, I've encrypted all your files, if you want to recover them, check the attached file.",
+   "Picture Name": "attachment.jpg",
+   "Photo": "https://cdn2.hubspot.net/hubfs/486579/lp/academy/malware/wannacry_screenshot.png"
+ },
+ {
+   "#": 9,
+   "Real Time": "07:32 PM",
+   "Date": "Monday 11:00 AM",
+   "Subject": "I've encrypted all your files!",
+   "From": "h4x0r@notanemail.net",
+   "Player": "Legal",
+   "Script": "Hello, \n\nI'm inside your company, I've encrypted all your files, if you want to recover them, check the attached file.",
+   "Picture Name": "attachment.jpg",
+   "Photo": "https://cdn2.hubspot.net/hubfs/486579/lp/academy/malware/wannacry_screenshot.png"
+ },
+ {
+   "#": 10,
+   "Real Time": "07:32 PM",
+   "Date": "Monday 11:00 AM",
+   "Subject": "I've encrypted all your files!",
+   "From": "h4x0r@notanemail.net",
+   "Player": "People",
+   "Script": "Hello, \n\nI'm inside your company, I've encrypted all your files, if you want to recover them, check the attached file.",
+   "Picture Name": "attachment.jpg",
+   "Photo": "https://cdn2.hubspot.net/hubfs/486579/lp/academy/malware/wannacry_screenshot.png"
+ }
+]

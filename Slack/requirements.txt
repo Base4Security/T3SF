@@ -1,0 +1,4 @@
+python-dotenv==0.20.0
+slack-bolt==1.13.0
+slack-sdk==3.15.2
+t3sf==1.0
