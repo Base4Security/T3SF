@@ -9,7 +9,7 @@
 
   [![Status](https://img.shields.io/badge/status-active-success.svg)]() 
   [![PyPI version](https://badge.fury.io/py/T3SF.svg)](https://badge.fury.io/py/T3SF)
-  [![Documentation Status](https://readthedocs.org/projects/t3sf/badge/?version=docs)](https://t3sf.readthedocs.io/en/latest/?badge=docs)
+  [![Documentation Status](https://readthedocs.org/projects/t3sf/badge/?version=latest)](https://t3sf.readthedocs.io/en/latest/?badge=latest)
   [![License](https://img.shields.io/badge/license-GPL-blue.svg)](/LICENSE)
 
 </div>
