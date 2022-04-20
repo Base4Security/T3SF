@@ -8,7 +8,7 @@ T3SP is a framework that offers a modular structure for the orchestration of eve
 Schematic
 ------------
 
-.. image:: https://raw.githubusercontent.com/Base4Security/T3SF/docs/schema.jpeg
+.. image:: https://raw.githubusercontent.com/Base4Security/T3SF/main/docs/schema.jpeg
 
 Usage
 ------------
