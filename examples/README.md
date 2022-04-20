@@ -19,4 +19,4 @@ Also, in Discord and Slack we have support to add a "Profile" picture from the s
 
 
 ### Whatsapp
-![Whatsapp](Whatsapp.png)
+![Whatsapp](WhatsApp.png)
