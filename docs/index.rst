@@ -10,9 +10,6 @@ Schematic
 
 .. image:: https://raw.githubusercontent.com/Base4Security/T3SF/main/docs/schema.jpeg
 
-Usage
-------------
-
 
 Supported platforms
 --------------------
@@ -41,12 +38,14 @@ Supported platforms
 	- Manual Inbox fetcher with the command `!add`, due to the lack of options from WhatsApp.
 	- Core functionalities such as time difference, ping command and injects fetcher.
 
+
 .. toctree::
 	:caption: T3SF Core
 	:maxdepth: 2
 	:hidden:
 
 	T3SF.Installation
+	T3SF.Usage
 	T3SF.CoreFunctions
 	T3SF.Handlers
 
@@ -59,3 +58,5 @@ Supported platforms
 	Slack
 	Telegram
 	WhatsApp
+
+

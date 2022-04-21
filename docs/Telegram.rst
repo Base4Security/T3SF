@@ -11,14 +11,7 @@ Functions
 
 .. py:function:: SendMessage(title, description, ctx=None, player=None, image=None)
 
-	Handler to sending messages for all platforms.
-
-	.. confval:: color_ds
-
-	Parameter with the color of the embedded message.
-
-		:type: ``str``
-		:required: ``False``
+	Message sending controller.
 
 	.. confval:: title
 
@@ -54,16 +47,9 @@ Functions
 		:required: ``False``
 
 
-.. py:function:: EditMessage(title, description, response, image=None)
+.. py:function:: EditMessage(title, description, response)
 
-	Handler to edit messages for all platforms (which allow editing messages).
-
-	.. confval:: color_ds
-
-	Parameter with the color of the embedded message.
-
-		:type: ``str``
-		:required: ``False``
+	Message editing controller.
 
 	.. confval:: title
 
@@ -77,6 +63,13 @@ Functions
 		The description/main text of the message.
 
 		:type: ``str``
+		:required: ``True``
+
+	.. confval:: response
+
+		The previous response message's object containing the edit message function.
+
+		:type: ``object``
 		:required: ``True``
 
 
@@ -104,9 +97,9 @@ Installation
 ------------------
 
 1. Git clone this repository.
-2. Go inside the Telegram version folder with ``cd T3SF-development/Telegram/``
+2. Go inside the Telegram version folder with ``cd T3SF/Telegram/``
 3. Install requirements.
-	``pip3 install requirements.txt``
+	``pip3 install -r requirements.txt``
 	
 	(Optional) Create a virtual enviroment
 	``python3 -m venv venv``

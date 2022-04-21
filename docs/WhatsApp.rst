@@ -11,14 +11,7 @@ Functions
 
 .. py:function:: SendMessage(title, description, ctx=None, player=None, image=None)
 
-	Handler to sending messages for all platforms.
-
-	.. confval:: color_ds
-
-	Parameter with the color of the embedded message.
-
-		:type: ``str``
-		:required: ``False``
+	Message sending controller.
 
 	.. confval:: title
 
@@ -37,7 +30,7 @@ Functions
 	.. confval:: ctx
 
 		:type: ``ctx``
-		:required: ``False``
+		:required: ``True``
 
 	.. confval:: player
 
@@ -90,9 +83,9 @@ Installation
 ------------------
 
 1. Git clone this repository.
-2. Go inside the WhatsApp version folder with ``cd T3SF-development/Whatsapp/``
+2. Go inside the WhatsApp version folder with ``cd T3SF/Whatsapp/``
 3. Install requirements.
-	``pip3 install requirements.txt``
+	``pip3 install -r requirements.txt``
 	
 	(Optional) Create a virtual enviroment
 	``python3 -m venv venv``

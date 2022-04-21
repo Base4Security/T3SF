@@ -11,7 +11,7 @@ Functions
 
 .. py:function:: SendMessage(color_ds=None, style:str="simple", title:str=None, description:str=None)
 
-	Handler to sending messages for all platforms.
+	Message sending controller.
 
 	.. confval:: color_ds
 
@@ -37,7 +37,7 @@ Functions
 
 .. py:function:: EditMessage(color_ds=None, style:str="simple", title:str=None, description:str=None)
 
-	Handler to edit messages for all platforms (which allow editing messages).
+	Message editing controller.
 
 	.. confval:: color_ds
 
@@ -77,9 +77,9 @@ Installation
 ------------------
 
 1. Git clone this repository.
-2. Go inside the Discord version folder with ``cd T3SF-development/Discord/``
+2. Go inside the Discord version folder with ``cd T3SF/Discord/``
 3. Install requirements.
-	``pip3 install requirements.txt``
+	``pip3 install -r requirements.txt``
 	
 	(Optional) Create a virtual enviroment
 	``python3 -m venv venv``

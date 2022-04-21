@@ -1,5 +1,8 @@
-Core functions
+CORE Functions
 ===================
+
+CORE functions are those functions that are to be used regardless of the selected platform. Basically they are functions for all platforms.
+
 
 .. py:function:: TimeDifference(actual_real_time:int, previous_real_time:int, itinerator:int, resumed:bool)
 	
@@ -52,7 +55,7 @@ Core functions
 
 	.. confval:: ctx
 
-	:type: ``ctx``
+	:type: ``object|array``
 	:required: ``True``
 
 	.. confval:: function_type
@@ -65,7 +68,7 @@ Core functions
 
 	.. confval:: itinerator
 
-	Inject number retrieved from the Game Master, used with :confval:`function_type` equals ``"resume"``.
+	Inject number retrieved from the Game Master, used when :confval:`function_type` equals ``"resume"``.
 
 	:type: ``int``
 	:default: ``None``

@@ -11,7 +11,7 @@ Functions
 
 .. py:function:: Formatter(title=None, description=None, color="#5bc0de", image=None, author=None, buttons=None, text_input=None, checkboxes=None)
 	
-	Function to create the embed messages, with a different set of options.
+	Creates the embed messages, with a different set of options.
 
 	.. confval:: title
 
@@ -74,7 +74,7 @@ Functions
 
 .. py:function:: SendMessage(title:str=None, description:str=None, color_sl=None, channel=None, image=None, author=None, buttons=None, text_input=None, checkboxes=None)
 
-	Handler to sending messages for all platforms.
+	Message sending controller.
 
 	.. confval:: title
 
@@ -133,7 +133,7 @@ Functions
 
 .. py:function:: EditMessage(title:str=None, description:str=None, color_sl=None, response=None, image=None, author=None, buttons=None, text_input=None, checkboxes=None)
 
-	Handler to edit messages for all platforms (which allow editing messages).
+	Message editing controller.
 
 	.. confval:: title
 
@@ -204,10 +204,10 @@ Bot
 
 Installation
 ------------------
-1. Git clone this repository.
-2. Go inside the Slack version folder with ``cd T3SF-development/Slack/``
+1. Git clone the repository [https://github.com/Base4Security/T3SF].
+2. Go inside the Slack version folder with ``cd T3SF/Slack/``
 3. Install requirements.
-	``pip3 install requirements.txt``
+	``pip3 install -r requirements.txt``
 	
 	(Optional) Create a virtual enviroment
 	``python3 -m venv venv``
@@ -216,7 +216,7 @@ Installation
 6. Select "Create New App".
 7. Select the option "From an app manifest".
 8. Select your workspace.
-9. Selecting the format "YAML", paste the code inside ``bot_manifest.yml`` located in the following path ``T3SF-development/Slack/bot_manifest.yml``.
+9. Selecting the format "YAML", paste the code inside ``bot_manifest.yml`` located in the following path ``T3SF/Slack/bot_manifest.yml``.
 10. Create the App.
 11. With the recently created app, and in the Basic Information menu, scroll to ``App-Level Tokens``, Generate a token and Scopes.
 12. You can use any Token name, the important thing is that you add both scopes to the token: ``connections:write`` and ``authorizations:read``.

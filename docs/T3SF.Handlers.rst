@@ -1,10 +1,13 @@
 Multi Platform Handlers
 =========================
 
+These functions, unlike the CORE ones, will be like handlers, calling other platform-based functions depending on the platform selected in the ``config.ini`` file.
+
+So if we need to send a message, we'll use :py:meth:`SendMessage` and in there we'll handle the correct platform to send the message.
 
 .. py:function:: SendMessage(title:str=None, description:str=None, color_ds:str=None, color_sl:str=None, channel=None, image=None, author=None, buttons=None, text_input=None, checkboxes=None)
 
-	Handler to sending messages for all platforms.
+	Message sending controller for all platforms.
 
 	.. confval:: title
 
@@ -94,7 +97,7 @@ Multi Platform Handlers
 
 .. py:function:: EditMessage(title:str=None, description:str=None, color_ds:str=None, color_sl:str=None, response=None, variable=None, image=None, author=None, buttons=None, text_input=None, checkboxes=None)
 
-	Handler to edit messages for all platforms (which allow editing messages).
+	Message editing controller for all platforms (which allow editing messages).
 
 	.. confval:: title
 
@@ -194,9 +197,7 @@ Multi Platform Handlers
 
 .. py:function:: SendIncident(inject)
 
-	Send the current incident to the correct player. 
-
-	Depending on the platform, a platform-specific function is called.
+	Send the current incident to the correct player.
 	
 	.. confval:: inject
 
@@ -235,8 +236,6 @@ Multi Platform Handlers
 .. py:function:: InboxesAuto(message=None)
 
 	Handler for the Automatic gathering of inboxes. 
-
-	Depending on the platform, a platform-specific function is called.
 	
 	.. confval:: message
 
