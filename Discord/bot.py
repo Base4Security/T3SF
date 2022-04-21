@@ -1,4 +1,3 @@
-from discord_components import Button, ButtonStyle, DiscordComponents
 from discord.ext import commands
 from dotenv import load_dotenv
 from blurple import ui
@@ -8,10 +7,8 @@ import os
 from T3SF import T3SF
 
 load_dotenv()
-TOKEN = os.getenv('DISCORD_TOKEN_LNF')
+TOKEN = os.getenv('DISCORD_TOKEN')
 bot = commands.Bot(command_prefix='!')
-DiscordComponents(bot)
-
 
 T3SF = T3SF(bot=bot)
 

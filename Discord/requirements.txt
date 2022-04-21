@@ -1,17 +1,4 @@
-aiohttp==3.7.4.post0
-asn1crypto==1.4.0
-async-timeout==3.0.1
-asyncio==3.4.3
-attrs==21.2.0
 blurple.py==0.5.5
-chardet==4.0.0
-discord-components==2.1.2
 discord.py==1.7.3
-idna==3.3
-multidict==5.2.0
-python-dateutil==2.8.2
 python-dotenv==0.20.0
-six==1.16.0
-typing-extensions==4.0.1
-yarl==1.7.2
 t3sf==1.0
