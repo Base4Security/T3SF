@@ -3,7 +3,24 @@ Usage
 
 We basically created the framework to be fast and easy to setup, so if you want to run the bot in Discord, WhatsApp or Telegram you have to simply initiate the T3SF class!
 
-Here is a code snippet as example!
+First we have the ``config.ini`` file. Here you will be able to choose the platform you are going to use ``Discord``, ``Slack``, ``Telegram`` or ``WhatsApp``.
+
+Also, you will be able to set the MSEL file's location. Normally you have this file in the same directory as the bot, but you can put it with a complete path!
+
+Below you can find an example config for Discord!
+
+.. code-block::
+
+	[General]
+	Platform : Discord
+
+	TTX_File : MSEL_BASE4.json
+
+---------------------------------------------
+
+After you set everything up, you'll probably start coding! Here are some examples to guide you!
+
+This example is for a Telegram bot:
 
 .. code-block:: python3
 
@@ -18,7 +35,7 @@ Here is a code snippet as example!
 	[...]
 
 
-Here is an example with the Slack bot
+Here is an example with the Slack bot:
 
 .. code-block:: python3
 
