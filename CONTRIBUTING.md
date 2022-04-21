@@ -1,6 +1,6 @@
 # Contributing Guide
 
-- Contributing to WhaBot is straight forward. This document shows you how to get started
+- Contributing to this framework is straight forward. This document shows you how to get started
 
 ## Submitting changes
 
