@@ -11,8 +11,6 @@ project = u'T3SF'
 slug = re.sub(r'\W+', '-', project.lower())
 version = theme_version
 release = theme_version_full
-author = u'Base4 Security (I+D+I Department) '
-copyright = author
 language = 'en'
 
 extensions = ['sphinx_rtd_theme', 'sphinx_toolbox.confval',]
@@ -26,3 +24,4 @@ html_theme_options = {
 
 html_logo = "logo.png"
 html_show_sourcelink = True
+html_show_copyright = False

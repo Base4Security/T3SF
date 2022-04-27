@@ -22,8 +22,8 @@
 - [About](#About)
 - [Getting Things Ready](#Starting)
 - [TODO](./TODO.md)
+- [CHANGELOG](./CHANGELOG.md)
 - [Contributing](./CONTRIBUTING.md)
-- [Authors](#Authors)
 
 ## About <a name = "About"></a>
 T3SP is a framework that offers a modular structure for the orchestration of events from a master scenario events list (MSEL) together with a set of rules defined for each exercise (optional) and a configuration that allows defining the parameters of the correspondent platform. The main module performs the communication with the specific module (Discord, Slack, Telegram, etc.) which allows the events to be presented in the input channels as injects for each platform. Also, the framework supports different use cases: "single organization, multiple areas", "multiple organization, single area" and "multiple organization, multiple areas".
@@ -124,7 +124,3 @@ if __name__ == "__main__":
 ```
 
 If you need more help, you can always check our documentation [here](https://t3sf.readthedocs.io/en/latest/)!
-
-## Authors <a name = "Authors"></a>
-- [@FedeQuarkB4](https://github.com/FedeQuarkB4) - Idea
-- [@lanfranB4](https://github.com/lanfranB4) - Main developer
