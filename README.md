@@ -11,6 +11,7 @@
   [![PyPI version](https://badge.fury.io/py/T3SF.svg)](https://badge.fury.io/py/T3SF)
   [![Documentation Status](https://readthedocs.org/projects/t3sf/badge/?version=latest)](https://t3sf.readthedocs.io/en/latest/?badge=latest)
   [![License](https://img.shields.io/badge/license-GPL-blue.svg)](/LICENSE)
+  [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6519221.svg)](https://doi.org/10.5281/zenodo.6519221)
 
 </div>
 
