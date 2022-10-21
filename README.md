@@ -27,12 +27,12 @@
 - [Contributing](./CONTRIBUTING.md)
 
 ## About <a name = "About"></a>
-T3SP is a framework that offers a modular structure for the orchestration of events from a master scenario events list (MSEL) together with a set of rules defined for each exercise (optional) and a configuration that allows defining the parameters of the correspondent platform. The main module performs the communication with the specific module (Discord, Slack, Telegram, etc.) which allows the events to be presented in the input channels as injects for each platform. Also, the framework supports different use cases: "single organization, multiple areas", "multiple organization, single area" and "multiple organization, multiple areas".
+T3SF is a framework that offers a modular structure for the orchestration of events based on a master scenario events list (MSEL) together with a set of rules defined for each exercise (optional) and a configuration that allows defining the parameters of the corresponding platform. The main module performs the communication with the specific module (Discord, Slack, Telegram, etc.) that allows the events to present the events in the input channels as injects for each platform. In addition, the framework supports different use cases: "single organization, multiple areas", "multiple organization, single area" and "multiple organization, multiple areas".
 
 ## Getting Things Ready <a name = "Starting"></a>
-Platform-independant, you will need to install the framework itself!
+Platform-independent, you will need to install the framework itself!
 
-To do this, you can follow this easy step-by-step guide, or if you're already comfortable installing packages with `pip`, you can skip to the last step!
+To do this, you can follow this simple step-by-step guide, or if you're already comfortable installing packages with `pip`, you can skip to the last step!
 
 ```bash
 # Python 3.6+ required
@@ -43,7 +43,7 @@ pip install -U pip         # Upgrade pip
 pip install T3SF           # Install the framework!
 ```
 
-We strongly recommend following the platform-specific guidance within our Read The Docs! Here you have the links:
+We strongly recommend following the platform-specific guidance within our Read The Docs! Here are the links:
 
   - [Discord](https://t3sf.readthedocs.io/en/latest/Discord.html#installation)
   - [Slack](https://t3sf.readthedocs.io/en/latest/Slack.html#installation)
