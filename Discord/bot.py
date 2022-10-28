@@ -1,14 +1,16 @@
 from discord.ext import commands
 from dotenv import load_dotenv
-from blurple import ui
 import discord
 import os
 
-from T3SF import T3SF
+from T3SF import *
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-bot = commands.Bot(command_prefix='!')
+
+intents = discord.Intents.default()
+intents.message_content = True
+bot = commands.Bot(command_prefix='!', intents=intents)
 
 T3SF = T3SF(bot=bot)
 
@@ -24,6 +26,10 @@ async def on_ready():
     print(f'{bot.user.id}')
     print('------')
 
+@bot.event
+async def on_interaction(interaction):
+    await T3SF.PollAnswerHandler(payload=interaction)
+
 @bot.command(name='ping', help='Responds with pong to know if the bot is up! Usage -> !ping')
 async def ping(ctx):
     """
@@ -34,7 +40,7 @@ async def ping(ctx):
 
     :stopwatch: `{round(bot.latency*1000)}ms`
     """
-    await ctx.send(embed=ui.Toast(ui.Style.INFO, emoji=False, text=description))
+    response = await ctx.send(embed=discord.Embed(colour=discord.Colour.blue(), description=description))
 
 @bot.command(name="start", help='Starts the Incidents Game. Usage -> !start')
 @commands.has_role("Game Master")
@@ -65,7 +71,7 @@ async def resume(ctx, *, query):
         await T3SF.ProcessIncidents(function_type = "resume", ctx=ctx, itinerator=itinerator)
 
     except Exception as e:
-        print("ERROR - Start function")
+        print("ERROR - Resume function")
         print(e)
         raise
 

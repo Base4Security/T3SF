@@ -1,8 +1,10 @@
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import ChatType
 from dotenv import load_dotenv
-from T3SF import *
 import logging
+
+from T3SF import *
 
 load_dotenv()
 
@@ -13,6 +15,10 @@ bot = Bot(token=os.environ['TELEGRAM_TOKEN'])
 dp = Dispatcher(bot)
 
 T3SF = T3SF(bot=bot)
+
+@dp.callback_query_handler()
+async def inline_query_handler(query: types.CallbackQuery):
+	await T3SF.PollAnswerHandler(query=query)
 
 @dp.message_handler(commands="ping")
 async def ping(message):

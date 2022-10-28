@@ -1,6 +1,21 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.1] - 2022-10-28
+
+Version 1.1 has been officially released, with new features, bug fixes and stability issues resolved!
+
+### Added
+- An option has been added for players to respond to polls for analytical purposes. Available for **Slack**, **Discord** and **Telegram**!
+
+### Fixed
+- A problem with the Discord bot has been fixed.
+- We have changed the way to check options such as "Photos" and "Profile picture" in the injects.
+
+### Updated
+- We have updated all the bots dependencies and made some changes to make them work with the new versions.
+
+
 ## [1.0] - 2022-04-20 
 
 Releasing the official public version of the framework!
@@ -48,7 +63,7 @@ Launching the latest _and better_ version of the framework supporting Discord!
 -Now the start and resume function are merged into 1 process function!
 
 ### Fixed
-- Fixed a bug within the resume function, injects not properly being choose!
+- Fixed a bug within the resume function, injects not being chosen correctly!
 
 
 ## [0.3] - 2022-01-29 [Private]

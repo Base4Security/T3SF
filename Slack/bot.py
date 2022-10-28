@@ -8,7 +8,7 @@ import re
 
 from T3SF import *
 
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.ERROR)
 
 load_dotenv()
 
@@ -20,6 +20,10 @@ T3SF = T3SF(app=app)
 async def regex_handler(ack, body, payload):
     await T3SF.RegexHandler(ack=ack,body=body,payload=payload)
 
+@app.action(re.compile("option"))
+async def poll_handler(ack, body, payload):
+    await T3SF.PollAnswerHandler(ack=ack,body=body,payload=payload)
+
 @app.message('!ping')
 async def ping(message, say):
     """
@@ -27,7 +31,7 @@ async def ping(message, say):
     """
     description = """
     PING localhost (127.0.0.1): 56 data bytes\n64 bytes from 127.0.0.1: icmp_seq=0 ttl=113 time=37.758 ms\n64 bytes from 127.0.0.1: icmp_seq=1 ttl=113 time=50.650 ms\n64 bytes from 127.0.0.1: icmp_seq=2 ttl=113 time=42.493 ms\n64 bytes from 127.0.0.1: icmp_seq=3 ttl=113 time=37.637 ms\n--- localhost ping statistics ---\n4 packets transmitted, 4 packets received, 0.0% packet loss\nround-trip min/avg/max/stddev = 37.637/42.135/50.650/5.292 ms\n\n_This is not real xD_"""
-    await app.client.chat_postMessage(channel = message['channel'], attachments = T3SF.Slack.Formatter(color="CL_GREEN", title="🏓 Pong!", description=description))
+    await app.client.chat_postMessage(channel = message['channel'], attachments = T3SF.Slack.Formatter(color="GREEN", title="🏓 Pong!", description=description))
 
 @app.message("!start")
 async def start(message, say):
@@ -64,6 +68,10 @@ async def handle_message_events(body, logger):
     Handling the received messages.
     DEPRECATED/DEBUG FUNCTION
     """
+    logger.info(body)
+
+@app.event("reaction_added")
+async def handle_reaction_added_events(body, logger):
     logger.info(body)
 
 @app.error

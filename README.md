@@ -78,9 +78,15 @@ load_dotenv()
 
 TOKEN = os.getenv('DISCORD_TOKEN')
 
-bot = commands.Bot(command_prefix='!')
+intents = discord.Intents.default()
+intents.message_content = True
+bot = commands.Bot(command_prefix='!', intents=intents)
 
 T3SF = T3SF(bot=bot) # We need to pass the bot's object to the framework.
+
+@bot.event
+async def on_interaction(interaction):
+    await T3SF.PollAnswerHandler(payload=interaction)
 
 @bot.command(name="start", help='Starts the Incidents Game. Usage -> !start')
 async def start(ctx):
@@ -108,6 +114,10 @@ load_dotenv()
 app = AsyncApp(token=os.environ["SLACK_BOT_TOKEN"])
 
 T3SF = T3SF(app=app) # We need to pass the app's object to the framework.
+
+@app.action(re.compile("option"))
+async def poll_handler(ack, body, payload):
+    await T3SF.PollAnswerHandler(ack=ack,body=body,payload=payload)
 
 @app.message("!start")
 async def start(message, say):

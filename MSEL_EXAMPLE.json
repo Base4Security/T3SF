@@ -1,15 +1,16 @@
 [
  {
     "#": 1,
-    "Real Time": "07:29 AM",
+    "Real Time": "07:29 PM",
     "Date": "Monday 9:30 AM",
     "Subject": "Anomalous Files Detected",
     "From": "Amazon Web Services",
     "Player": "Information Security",
     "Script": "We detected some anomalous files in your S3 Bucket.",
-    "Picture Name": "S3_Bucket.png",
     "Photo": "https://img2.helpnetsecurity.com/posts2018/aws-s3-buckets-public.jpg",
-    "Profile": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Amazon_Web_Services_Logo.svg/1024px-Amazon_Web_Services_Logo.svg.png"
+    "Picture Name": "S3_Bucket.png",
+    "Profile": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Amazon_Web_Services_Logo.svg/1024px-Amazon_Web_Services_Logo.svg.png",
+    "Poll": ""
  },
  {
    "#": 2,
@@ -19,8 +20,10 @@
    "From": "SOC - BASE4",
    "Player": "SRE",
    "Script": "Please note that we detected a large number of phishing emails coming from different email addresses.\n\nIgnore messages from emails with the address @notanemail.net",
+   "Photo": "",
    "Picture Name": "Base_4_SOC.jpg",
-   "Profile": "https://foreseeti.com/wp-content/uploads/2021/09/Ska%CC%88rmavbild-2021-09-02-kl.-15.44.24.png"
+   "Profile": "https://foreseeti.com/wp-content/uploads/2021/09/Ska%CC%88rmavbild-2021-09-02-kl.-15.44.24.png",
+   "Poll": ""
  },
  {
    "#": 3,
@@ -30,8 +33,10 @@
    "From": "Internal",
    "Player": "Data Governance",
    "Script": "Hey Guys!\n\nI found some files from the company exposed online, please take a look!",
+   "Photo": "https://assets-global.website-files.com/5efc3ccdb72aaa7480ec8179/60dc1c3c984ef85123cb0f7b_LinkedIn-Data-Breach-700-million-.png",
    "Picture Name": "attachment.jpg",
-   "Photo": "https://assets-global.website-files.com/5efc3ccdb72aaa7480ec8179/60dc1c3c984ef85123cb0f7b_LinkedIn-Data-Breach-700-million-.png"
+   "Profile": "",
+   "Poll": ""
  },
  {
    "#": 4,
@@ -41,7 +46,10 @@
    "From": "Joaquin Lanfranconi",
    "Player": "Legal",
    "Script": "Hey folks!\n\nI'm about to release a new tool, but I'm not sure which license is better, can you help with this one?\n\nThanks in advance!",
-   "Picture Name": "attachment.jpg"
+   "Photo": "",
+   "Picture Name": "",
+   "Profile": "",
+   "Poll": "MIT | GPL"
  },
  {
    "#": 5,
@@ -52,7 +60,9 @@
    "Player": "PR/Comm",
    "Script": "Hello, \n\nI'm inside your company, I've encrypted all your files, if you want to recover them, check the attached file.",
    "Picture Name": "attachment.jpg",
-   "Photo": "https://cdn2.hubspot.net/hubfs/486579/lp/academy/malware/wannacry_screenshot.png"
+   "Profile": "",
+   "Photo": "https://cdn2.hubspot.net/hubfs/486579/lp/academy/malware/wannacry_screenshot.png",
+   "Poll": ""
  },
  {
    "#": 6,
@@ -63,7 +73,9 @@
    "Player": "Information Security",
    "Script": "Hello, \n\nI'm inside your company, I've encrypted all your files, if you want to recover them, check the attached file.",
    "Picture Name": "attachment.jpg",
-   "Photo": "https://cdn2.hubspot.net/hubfs/486579/lp/academy/malware/wannacry_screenshot.png"
+   "Profile": "",
+   "Photo": "https://cdn2.hubspot.net/hubfs/486579/lp/academy/malware/wannacry_screenshot.png",
+   "Poll": ""
  },
  {
    "#": 7,
@@ -74,7 +86,9 @@
    "Player": "SRE",
    "Script": "Hello, \n\nI'm inside your company, I've encrypted all your files, if you want to recover them, check the attached file.",
    "Picture Name": "attachment.jpg",
-   "Photo": "https://cdn2.hubspot.net/hubfs/486579/lp/academy/malware/wannacry_screenshot.png"
+   "Profile": "",
+   "Photo": "https://cdn2.hubspot.net/hubfs/486579/lp/academy/malware/wannacry_screenshot.png",
+   "Poll": ""
  },
  {
    "#": 8,
@@ -85,7 +99,9 @@
    "Player": "Data Governance",
    "Script": "Hello, \n\nI'm inside your company, I've encrypted all your files, if you want to recover them, check the attached file.",
    "Picture Name": "attachment.jpg",
-   "Photo": "https://cdn2.hubspot.net/hubfs/486579/lp/academy/malware/wannacry_screenshot.png"
+   "Profile": "",
+   "Photo": "https://cdn2.hubspot.net/hubfs/486579/lp/academy/malware/wannacry_screenshot.png",
+   "Poll": ""
  },
  {
    "#": 9,
@@ -96,7 +112,9 @@
    "Player": "Legal",
    "Script": "Hello, \n\nI'm inside your company, I've encrypted all your files, if you want to recover them, check the attached file.",
    "Picture Name": "attachment.jpg",
-   "Photo": "https://cdn2.hubspot.net/hubfs/486579/lp/academy/malware/wannacry_screenshot.png"
+   "Profile": "",
+   "Photo": "https://cdn2.hubspot.net/hubfs/486579/lp/academy/malware/wannacry_screenshot.png",
+   "Poll": ""
  },
  {
    "#": 10,
@@ -107,6 +125,34 @@
    "Player": "People",
    "Script": "Hello, \n\nI'm inside your company, I've encrypted all your files, if you want to recover them, check the attached file.",
    "Picture Name": "attachment.jpg",
-   "Photo": "https://cdn2.hubspot.net/hubfs/486579/lp/academy/malware/wannacry_screenshot.png"
+   "Profile": "",
+   "Photo": "https://cdn2.hubspot.net/hubfs/486579/lp/academy/malware/wannacry_screenshot.png",
+   "Poll": ""
+ },
+ {
+   "#": 11,
+   "Real Time": "07:33 PM",
+   "Date": "Monday 11:10 AM",
+   "Subject": "Encrypted Files!",
+   "From": "Internal",
+   "Player": "Data Governance",
+   "Script": "Guys, we have a major issue!\nWhat should we do in this case, they are asking for a ransom of 2 BTC!\n\nInfoSec confirmed the encrypted files and everything!\nShould we pay them?",
+   "Picture Name": "encrypted_files.jpg",
+   "Profile": "",
+   "Photo": "https://cdn2.hubspot.net/hubfs/486579/lp/academy/malware/wannacry_screenshot.png",
+   "Poll": "Pay the ransom | Don’t pay it"
+ },
+ {
+   "#": 12,
+   "Real Time": "07:35 PM",
+   "Date": "Monday 11:15 AM",
+   "Subject": "Data breach in your company",
+   "From": "New York Times",
+   "Player": "PR/Comm",
+   "Script": "Hello, \nWe have information about a data breach in your company.\nCould you please confirm, what kind of data is compromised?\nThanks!",
+   "Picture Name": "",
+   "Profile": "https://1000logos.net/wp-content/uploads/2017/04/Symbol-New-York-Times.png",
+   "Photo": "",
+   "Poll": ""
  }
 ]

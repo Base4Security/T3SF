@@ -16,7 +16,11 @@ platform = config.get('General', 'Platform')
 if platform.lower() == "discord":
 	try:
 		import discord
-		from blurple import ui
+	except Exception as e:
+		print(e)
+elif platform.lower() == "telegram":
+	try:
+		from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 	except Exception as e:
 		print(e)
 
@@ -27,6 +31,7 @@ class T3SF(object):
 		self.process_quit = False
 		self.regex_ready = None
 		self.incidents_running = False
+		self.poll_answered = False
 		self.ch_names_list = []
 		self.players_list = []
 
@@ -75,11 +80,16 @@ class T3SF(object):
 
 			description = f"The bot is Up and running!\n\nIncident: {itinerator}/{len(self.data)}\n\nWaiting {self.diff} minute(s) ({self.diff_secs} sec.) to send it."
 
-			await self.EditMessage(style="simple", color_ds = "ui.Style.INFO", color_sl = "CL_CYAN", title="⚙️ Bot running...", description=description, response=self.msg_gm)
+			await self.EditMessage(style="simple", color = "CYAN", title="⚙️ Bot running...", description=description, response=self.msg_gm)
 
 			print(f'We have a difference of {self.diff} minute(s) - {self.diff_secs} seconds (Actual time: {datetime.now().strftime("%H:%M:%S")})')
 			
 			await asyncio.sleep(self.diff_secs)
+
+			if "Poll" in self._inject and self._inject['Poll'] != '' and self.poll_answered == False:
+				description = self._inject["Script"] + f"\n\n@channel Poll not answered within {self.diff} minute(s), Time's Up!"
+				await self.EditMessage(style="custom", variable="self.response_poll", color = "RED", title="Poll time ended!", description=description, response=self.response_poll)
+				await self.NotifyGameMasters(type_info="poll_unanswered", data={'msg_poll':self._inject["Script"]})	
 
 		except Exception as e:
 			print("ERROR - Get Time Difference")
@@ -121,7 +131,7 @@ class T3SF(object):
 				return key
 		return False
 
-	async def NotifyGameMasters(self, type_info=str):
+	async def NotifyGameMasters(self, type_info=str, data=None):
 		"""
 		Notify the Game Masters of the different states of the bot, through messages.
 		"""
@@ -129,27 +139,37 @@ class T3SF(object):
 			if type_info == "start_normal":
 				title = "⚙ Starting bot..."
 				description = "The bot it's heating up!\n\nGive us just a second!!"
-				self.msg_gm = await self.SendMessage(title = title, description = description, color_ds="ui.Style.WARNING", color_sl="CL_YELLOW")
+				self.msg_gm = await self.SendMessage(title = title, description = description, color="YELLOW")
 
 			elif type_info == "started_normal":
 				title = "Bot succesfully started! 🎈"
 				description = "The bot is Up and running!\n\nLets the game begin!!"
-				self.msg_gm = await self.EditMessage(title = title, description = description, color_ds="ui.Style.SUCCESS", color_sl="CL_GREEN", response=self.msg_gm)
+				self.msg_gm = await self.EditMessage(title = title, description = description, color="GREEN", response=self.msg_gm)
 			
 			elif type_info == "start_resumed":
 				title = "⚙ Resuming bot..."
 				description = "The bot it's trying to resume from the desired point!\n\nGive us just a few seconds!!"
-				self.msg_gm = await self.SendMessage(title = title, description = description, color_ds="ui.Style.WARNING", color_sl="CL_YELLOW")
+				self.msg_gm = await self.SendMessage(title = title, description = description, color="YELLOW")
 			
 			elif type_info == "started_resumed":
 				title = "Bot succesfully started! 🎈"
 				description = "The bot is Up and running!\n\nLets the game begin!!"
-				self.msg_gm = await self.EditMessage(title = title, description = description, color_ds="ui.Style.SUCCESS", color_sl="CL_GREEN", response=self.msg_gm)
+				self.msg_gm = await self.EditMessage(title = title, description = description, color="GREEN", response=self.msg_gm)
 			
 			elif type_info == "finished_incidents":
 				title = "🎉 Bot Finished succesfully! 🎉"
 				description = "The bot've just completed the entire game!\n\nHope to see you again soon!!"
-				self.msg_gm = await self.EditMessage(title = title, description = description, color_ds="ui.Style.SUCCESS", color_sl="CL_GREEN", response=self.msg_gm)
+				self.msg_gm = await self.EditMessage(title = title, description = description, color="GREEN", response=self.msg_gm)
+
+			elif type_info == "poll_answered":
+				title = "📊 Poll Answered"
+				description = f"Poll Question: {data['msg_poll']}\nSelected Answer: {data['answer']}\nBy: @{data['user']}"
+				await self.SendMessage(title = title, description = description, color="GREEN", unique=True)
+
+			elif type_info == "poll_unanswered":
+				title = "📊 Poll Not Answered"
+				description = f"Poll Question: {data['msg_poll']}\nNot answered by anyone."
+				await self.SendMessage(title = title, description = description, color="RED", unique=True)
 
 			return True
 
@@ -210,8 +230,12 @@ class T3SF(object):
 						await self.TimeDifference(actual_real_time, previous_real_time, resumed=True, itinerator=itinerator) # Check the amount of seconds between both timestamps.
 
 					print(f'{information["#"]}\n------------\n')
-					
-					await self.SendIncident(inject = information) # Sends the incident to the desired chats.
+
+					if "Poll" in information and information['Poll'] != '':
+						await self.SendPoll(inject = information)
+						
+					else:
+						await self.SendIncident(inject = information) # Sends the incident to the desired chats.
 
 					if function_type == "start":
 						if itinerator == 0:
@@ -256,6 +280,30 @@ class T3SF(object):
 			print(e)
 			raise
 
+	async def SendPoll(self, inject):
+		try:
+			self._inject = inject
+
+			if self.platform == "discord":
+				await self.Discord.PollHandler(self=self)
+
+			elif self.platform == "slack":
+				await self.Slack.PollHandler(self=self)
+
+			elif self.platform == "telegram":
+				await self.Telegram.PollHandler(self=self)
+
+			elif self.platform == "whatsapp":
+				print("Sorry, this option is still under development.")
+				return False
+
+			return True
+
+		except Exception as e:
+			print("ERROR - SendPoll")
+			print(e)
+			raise
+
 	async def InboxesAuto(self, message=None):
 		if self.platform == "discord":
 			await self.Discord.InboxesAuto(self=self)
@@ -278,12 +326,12 @@ class T3SF(object):
 
 			if payload['action_id'] == "regex_yes":
 				regex = body['actions'][0]['value']
-				color="CL_GREEN"
+				color="GREEN"
 				title = "✨ Regex detected succesfully! ✨"
 				description = f"Thanks for confirming the regex detected for the channels (I'm going to tell my creator he is so good coding :D ), we are going to use `{regex}` to match the inboxes"
 
 			elif payload['action_id'] == "regex_no":
-				color="CL_RED"
+				color="RED"
 				title = "ℹ️ Regex needed!"
 				description = "Got it!\n Unluckily, but here we go...\nPlease send me the regex for the channels, so we can get the inboxes!\n\nExample:\ninbox-legal\nThe regex should be `inbox-`"
 				text_input = {"action_id": "regex_custom", "label": "Please type the desired regex. EG: inbox-", "dispatch_action": True}
@@ -291,11 +339,11 @@ class T3SF(object):
 
 			elif payload['action_id'] == "regex_custom":
 				regex = body['actions'][0]['value']
-				color="CL_GREEN"
+				color="GREEN"
 				title="✅ Regex accepted!"
 				description=f"Thanks for confirming the regex for the channels, we are going to use `{user_regex}` to match the inboxes!"
 
-			self.response_auto = await self.EditMessage(title = title, description = description, color_sl=color, image=image, text_input=text_input, response=self.response_auto)
+			self.response_auto = await self.EditMessage(title = title, description = description, color=color, image=image, text_input=text_input, response=self.response_auto)
 
 			if regex != None:
 				await self.Slack.InboxesAuto(self=self,regex=regex)
@@ -304,9 +352,25 @@ class T3SF(object):
 			self._ctx = inbox
 			await self.Whatsapp.InboxFetcher(self=self, inbox=inbox)
 
+	async def PollAnswerHandler(self, ack=None, body=None, payload=None, query=None):
+		if self.platform == "discord":
+			await self.Discord.PollAnswerHandler(self=self, interaction=payload)
+			return True
+
+		elif self.platform == "slack":
+			await ack()
+			await self.Slack.PollAnswerHandler(self=self, body=body, payload=payload)
+			return True
+
+		elif self.platform == "telegram":
+			await self.Telegram.PollAnswerHandler(self=self, query=query)
+			return True
+
+		elif self.platform == "whatsapp":
+			return False
+
 	async def SendMessage(self,
-		color_sl=None,
-		color_ds=None, 
+		color=None, 
 		title:str=None, 
 		description:str=None, 
 		channel=None, 
@@ -314,14 +378,21 @@ class T3SF(object):
 		author=None, 
 		buttons=None, 
 		text_input=None, 
-		checkboxes=None):
+		checkboxes=None,
+		view=None,
+		unique=False,
+		reply_markup=None):
 
 		if self.platform == "discord":
-			self.response = await self.Discord.SendMessage(self=self, color_ds=color_ds, title=title, description=description)
-			return self.response
+			if unique == True:
+				self.gm_poll_msg = await self.Discord.SendMessage(self=self, color=color, title=title, description=description, view=view, unique=unique)
+				return self.gm_poll_msg
+			else:
+				self.response = await self.Discord.SendMessage(self=self, color=color, title=title, description=description, view=view)
+				return self.response
 
 		elif self.platform == "slack":
-			self.response = await self.Slack.SendMessage(self=self, channel = channel, title=title, description=description, color_sl=color_sl, image=image, author=author, buttons=buttons, text_input=text_input, checkboxes=checkboxes)
+			self.response = await self.Slack.SendMessage(self=self, channel = channel, title=title, description=description, color=color, image=image, author=author, buttons=buttons, text_input=text_input, checkboxes=checkboxes)
 			return self.response
 
 		elif self.platform == "telegram":
@@ -331,9 +402,8 @@ class T3SF(object):
 		elif self.platform == "whatsapp":
 			await self.Whatsapp.SendMessage(self=self, title=title, description=description, chat=self._ctx["Chat_Name"])
 
-	async def EditMessage(self, 
-		color_sl=None, 
-		color_ds=None, 
+	async def EditMessage(self,
+		color=None, 
 		style:str="simple", 
 		title:str=None, 
 		description:str=None,
@@ -343,18 +413,21 @@ class T3SF(object):
 		author=None, 
 		buttons=None, 
 		text_input=None, 
-		checkboxes=None):
+		checkboxes=None,
+		view=None,
+		reply_markup=None):
 
 		if self.platform == "discord":
 			if style == "simple":
-				self.response = await self.Discord.EditMessage(self=self, color_ds=color_ds, title=title, description=description)
+				self.response = await self.Discord.EditMessage(self=self, color=color, title=title, description=description, view=view)
 				return self.response
 			else:
+				colors = {'BLUE' : discord.Colour.dark_blue(), 'RED' : discord.Colour.red(), 'CYAN' : discord.Colour.blue(), 'GREEN' : discord.Colour.green(), 'YELLOW' : discord.Colour.yellow()}
 				variable = eval(variable)
-				await variable.edit(embed=ui.Alert(eval(color_ds), title = title, name=False, emoji=False, description = description))
+				await variable.edit(embed=discord.Embed(color=colors[color], title = title, description = description), view=view)
 
 		elif self.platform == "slack":
-			self.response = await self.Slack.EditMessage(self=self, response=response, title=title, description=description, color_sl=color_sl, image=image, author=author, buttons=buttons, text_input=text_input, checkboxes=checkboxes)
+			self.response = await self.Slack.EditMessage(self=self, response=response, title=title, description=description, color=color, image=image, author=author, buttons=buttons, text_input=text_input, checkboxes=checkboxes)
 			return self.response
 
 		elif self.platform == "telegram":
@@ -410,29 +483,92 @@ class T3SF(object):
 
 			player = self._inject['Player']
 			image = None
-			if not (self._inject.get('Photo') is None):
+			if "Photo" in self._inject and self._inject['Photo'] != '':
 				image = self._inject['Photo']
 				
-			await self.Telegram.SendMessage(self=self, title=self._inject["Subject"], description=all_data, player=self.inboxes_all[player], image=image)
+			await self.Telegram.SendMessage(self=self, title=self._inject["Subject"], description=all_data, chat_id=self.inboxes_all[player], image=image)
 
-		async def SendMessage(self, title, description, ctx=None, player=None, image=None):
+		async def PollHandler(self):
+			self.poll_answered = False
+			
+			image = None
+
+			player = self._inject['Player']
+
+			if "Photo" in self._inject and self._inject['Photo'] != '':
+				image = self._inject['Photo']
+
+			poll_options = self._inject['Poll'].split('|')
+			
+			actual_real_time = re.sub("([^0-9])", "", self._inject['Real Time'])[-2:]
+			
+			next_real_time = re.sub("([^0-9])", "", self.data[int(self._inject['#'])]['Real Time'])[-2:]
+
+			diff = int(next_real_time) - int(actual_real_time)
+			if diff < 0:
+				diff_no_real = int(actual_real_time) - int(next_real_time)
+				diff = 60 - diff_no_real 
+
+			diff_secs = diff * 60
+
+			description = self._inject["Script"] + f"\n\nYou have {diff} minute(s) to answer this poll!"
+
+			all_data = f'{self._inject["Script"]} \n\nYou have {diff} minute(s) to answer this poll!'
+
+			buttons = InlineKeyboardMarkup(row_width=2)
+			buttons.add(InlineKeyboardButton(poll_options[0], callback_data=f"poll|{poll_options[0]}"), InlineKeyboardButton(poll_options[1], callback_data=f"poll|{poll_options[1]}"))
+
+			self.response_poll = await self.Telegram.SendMessage(self=self, title=self._inject["Subject"], description=all_data, chat_id=self.inboxes_all[player], image=image, reply_markup=buttons)
+
+			return True
+
+		async def PollAnswerHandler(self, query=None):
+			if "poll" in query.data:
+				selected_option = query.data.split('|')[1]
+				await query.answer(f'You answered with {selected_option!r}')
+
+				action_user = query["from"]["username"]
+				poll_msg = query["message"]["text"]
+				if poll_msg == None:
+					poll_msg = query["message"]["caption"]
+				poll_msg = poll_msg[: poll_msg.rfind('\n')]
+
+				description = f'*Poll Answered!*\n\n {poll_msg}\n\n@{action_user} selected: {selected_option}'
+
+				self.response_poll = await self.Telegram.EditMarkup(self=self, text=description, chat_id=query.message.chat.id, message_id=query.message.message_id, reply_markup=None)
+				self.poll_answered = True
+				await self.NotifyGameMasters(type_info="poll_answered", data={'msg_poll':poll_msg,'answer':selected_option,'user':action_user})
+				return True
+				
+			else:
+				pass
+
+		async def SendMessage(self, title, description, ctx=None, chat_id=None, image=None, reply_markup=None):
 			data = f"*{title}*\n\n{description}"
 
-			if player != None:
-				chat_id = player
-			else:
+			if chat_id == None:
 				chat_id = self._ctx.chat.id
 
 			if image != None:
-				response = await self.bot.send_photo(chat_id=chat_id, caption=data, photo=image, parse_mode = 'Markdown')
+				response = await self.bot.send_photo(chat_id=chat_id, caption=data, photo=image, reply_markup=reply_markup, parse_mode = 'Markdown')
 			else:
-				response = await self.bot.send_message(chat_id, data, parse_mode = 'Markdown')
+				response = await self.bot.send_message(chat_id=chat_id, text=data, reply_markup=reply_markup, parse_mode = 'Markdown')
 			return response
 
-		async def EditMessage(self, title, description, response, image=None):
+		async def EditMessage(self, title, description, response, image=None, reply_markup=None):
 			text = f"*{title}*\n\n{description}"
-			response = await response.edit_text(text=text, parse_mode = 'Markdown')
+			try:
+				response = await response.edit_text(text=text, parse_mode = 'Markdown')
+			except:
+				response = await response.edit_caption(caption=text, parse_mode = 'Markdown', reply_markup=reply_markup)
+			
 			return response
+
+		async def EditMarkup(self, text, chat_id, message_id, reply_markup=None, image=None):
+			try:
+				await self.bot.edit_message_text(text=text, chat_id=chat_id, message_id=message_id, reply_markup=reply_markup, parse_mode = 'Markdown')
+			except:
+				await self.bot.edit_message_caption(caption=text, chat_id=chat_id, message_id=message_id, reply_markup=reply_markup, parse_mode = 'Markdown')
 
 	class Discord():
 
@@ -442,7 +578,7 @@ class T3SF(object):
 
 			if self.fetch_inboxes == True:
 
-				self.response_auto = await self.SendMessage(title="⚙️ Fetching inboxes...", description=f"Please wait while we fetch all the inboxes in this server!", color_ds="ui.Style.INFO")
+				self.response_auto = await self.SendMessage(title="⚙️ Fetching inboxes...", description=f"Please wait while we fetch all the inboxes in this server!", color="BLUE")
 
 				channels = self._ctx.message.guild.channels
 
@@ -482,7 +618,7 @@ class T3SF(object):
 					msg = await self.bot.wait_for("message", check=check_regex_channels, timeout=50)
 
 					if msg.content.lower() in ["y", "yes"]:
-						await self.EditMessage(style="custom", variable="self.response_auto", color_ds="ui.Style.SUCCESS", title = "✨ Regex detected succesfully! ✨", description = f"Thanks for confirming the regex detected for the channels (I'm going to tell my creator he is so good coding :D ), we are going to use `{regex}` to match the inboxes")
+						await self.EditMessage(style="custom", variable="self.response_auto", color="GREEN", title = "✨ Regex detected succesfully! ✨", description = f"Thanks for confirming the regex detected for the channels (I'm going to tell my creator he is so good coding :D ), we are going to use `{regex}` to match the inboxes")
 
 					elif msg.content.lower() in ["n", "no"]:
 						await self.response_auto.edit(embed=discord.Embed(
@@ -497,10 +633,10 @@ class T3SF(object):
 
 						if msg_regex_user.content != "":
 							regex = msg_regex_user
-							await self.EditMessage(style="custom", variable="self.response_auto", color_ds="ui.Style.SUCCESS", title="✅ Regex accepted!", description=f"Thanks for confirming the regex for the channels, we are going to use `{msg_regex_user.content}` to match the inboxes!")
+							await self.EditMessage(style="custom", variable="self.response_auto", color="GREEN", title="✅ Regex accepted!", description=f"Thanks for confirming the regex for the channels, we are going to use `{msg_regex_user.content}` to match the inboxes!")
 
 				except asyncio.TimeoutError:
-					await self.EditMessage(style="custom", variable="self.response_auto", color_ds="ui.Style.DANGER", title = ":x: Sorry, you didn't reply on time", description = "Please start the process again.")
+					await self.EditMessage(style="custom", variable="self.response_auto", color="RED", title = ":x: Sorry, you didn't reply on time", description = "Please start the process again.")
 					raise RuntimeError("We didn't detect any regex, time's up.")
 
 				for player in self.players_list:
@@ -516,7 +652,7 @@ class T3SF(object):
 				for player in self.inboxes_all:
 					mensaje_inboxes += f"**Inbox** {player}[{self.inboxes_all[player]}]\n"
 
-				await self.EditMessage(style="custom", variable="self.response_auto", color_ds="ui.Style.SUCCESS", title=f"📩  Inboxes fetched! [{len(self.inboxes_all)}]", description=mensaje_inboxes)
+				await self.EditMessage(style="custom", variable="self.response_auto", color="GREEN", title=f"📩  Inboxes fetched! [{len(self.inboxes_all)}]", description=mensaje_inboxes)
 
 			return True
 
@@ -529,10 +665,10 @@ class T3SF(object):
 
 			embed = discord.Embed(title = self._inject['Subject'], description = all_data, color = discord.Colour.blue())
 			
-			if not (self._inject.get('Photo') is None):
+			if "Photo" in self._inject and self._inject['Photo'] != '':
 				embed.set_image(url=self._inject['Photo'])
 			
-			if not (self._inject.get('Profile') is None):
+			if "Profile" in self._inject and self._inject['Profile'] != '':
 				profile_pic = self._inject['Profile']
 			else:
 				profile_pic = random.choice([
@@ -547,27 +683,88 @@ class T3SF(object):
 
 			return embed
 
-		async def SendMessage(self, color_ds=None, title:str=None, description:str=None):
-			self.response = await self._ctx.send(embed=ui.Alert(eval(color_ds), title = title, name=False, emoji=False, description = description))
-			return self.response
+		async def PollHandler(self):
+			self.poll_answered = False
 
-		async def EditMessage(self, color_ds=None, title:str=None, description:str=None):
-			await self.response.edit(embed=ui.Alert(eval(color_ds), title = title, name=False, emoji=False, description = description))
+			all_data = self._inject["Script"]
+
+			poll_options = self._inject['Poll'].split('|')
+			
+			actual_real_time = re.sub("([^0-9])", "", self._inject['Real Time'])[-2:]
+			
+			next_real_time = re.sub("([^0-9])", "", self.data[int(self._inject['#'])]['Real Time'])[-2:]
+
+			diff = int(next_real_time) - int(actual_real_time)
+			if diff < 0:
+				diff_no_real = int(actual_real_time) - int(next_real_time)
+				diff = 60 - diff_no_real 
+
+			diff_secs = diff * 60
+
+			view = discord.ui.View()
+			view.add_item(discord.ui.Button(style=discord.ButtonStyle.primary,label=poll_options[0], custom_id="poll|"+poll_options[0]))
+			view.add_item(discord.ui.Button(style=discord.ButtonStyle.primary,label=poll_options[1], custom_id="poll|"+poll_options[1]))
+
+			all_data = all_data+ f"\n\nYou have {diff} minute(s) to answer this poll!"
+
+			player = self._inject['Player']
+
+			inbox = self.bot.get_channel(self.inboxes_all[player])
+
+			embed = discord.Embed(title = self._inject['Subject'], description = all_data, color = discord.Colour.yellow())
+
+			if "Photo" in self._inject and self._inject['Photo'] != '':
+				embed.set_image(url=self._inject['Photo'])
+
+			self.response_poll = await inbox.send(embed = embed, view=view)
+
+			return embed
+
+		async def PollAnswerHandler(self, interaction=None):
+			if "poll" in interaction.data['custom_id']:
+				poll_msg_og = interaction.message.embeds.copy()[0]
+
+				title =  poll_msg_og.title
+
+				poll_msg = poll_msg_og.description
+				poll_msg = poll_msg[: poll_msg.rfind('\n')]
+
+				action_user = interaction.user
+
+				selected_option = interaction.data['custom_id'].split('|')[1]
+				description = f'{poll_msg}\n\n@{action_user} selected: {selected_option}'				
+
+				self.poll_answered = True
+				self.response_poll = await interaction.response.edit_message(embed=discord.Embed(colour=discord.Colour.green(), title=title, description=description),view=None)
+				await self.NotifyGameMasters(type_info="poll_answered", data={'msg_poll':poll_msg,'answer':selected_option,'user':action_user})
+				return True
+			else:
+				pass
+
+		async def SendMessage(self, color="CYAN", title:str=None, description:str=None, view=None, unique=False):
+			colors = {'BLUE' : discord.Colour.dark_blue(), 'RED' : discord.Colour.red(), 'CYAN' : discord.Colour.blue(), 'GREEN' : discord.Colour.green(), 'YELLOW' : discord.Colour.yellow()}
+
+			if unique == True:
+				self.gm_poll_msg = await self._ctx.send(embed=discord.Embed(color=colors[color], title = title, description = description), view=view)
+				return self.gm_poll_msg
+			
+			else:
+				self.response = await self._ctx.send(embed=discord.Embed(color=colors[color], title = title, description = description), view=view)
+				return self.response
+
+		async def EditMessage(self, color="CYAN", title:str=None, description:str=None, view=None,):
+			colors = {'BLUE' : discord.Colour.dark_blue(), 'RED' : discord.Colour.red(), 'CYAN' : discord.Colour.blue(), 'GREEN' : discord.Colour.green(), 'YELLOW' : discord.Colour.yellow()}
+
+			await self.response.edit(embed=discord.Embed(color=colors[color], title = title, description = description), view=view)
 			return self.response
 
 	class Slack():
 
-		def Formatter(title=None, description=None, color="#5bc0de", image=None, author=None, buttons=None, text_input=None, checkboxes=None):
-			CL_BLUE = "#428bca"
-			CL_RED = "#d9534f"
-			CL_WHITE = "#f9f9f9"
-			CL_CYAN = "#5bc0de"
-			CL_GREEN = "#5cb85c"
-			CL_ORANGE = "#ffa700"
-			CL_YELLOW = "#ffff00"
+		def Formatter(title=None, description=None, color="CYAN", image=None, author=None, buttons=None, text_input=None, checkboxes=None):
+			colors = {'BLUE' : '#428bca', 'RED' : '#d9534f', 'WHITE' : '#f9f9f9', 'CYAN' : '#5bc0de', 'GREEN' : '#5cb85c', 'ORANGE' : '#ffa700', 'YELLOW' : '#ffff00'}
 
 			fallback_text = ""
-			color = eval(color)
+			color = colors[color]
 			result =[
 						{
 							"color": color,
@@ -725,13 +922,13 @@ class T3SF(object):
 				for player in self.inboxes_all:
 					mensaje_inboxes += f"Inbox {player} [{self.inboxes_all[player]}]\n"
 
-				self.response_auto = await self.EditMessage(response=self.response_auto, color_sl="CL_YELLOW", title = f"📩 Inboxes fetched! [{len(self.inboxes_all)}]", description=mensaje_inboxes)
+				self.response_auto = await self.EditMessage(response=self.response_auto, color="YELLOW", title = f"📩 Inboxes fetched! [{len(self.inboxes_all)}]", description=mensaje_inboxes)
 				
 				self.regex_ready = True
 
 			elif self.fetch_inboxes == True:
 
-				self.response_auto = await self.SendMessage(channel = self._ctx['channel'], color_sl="CL_CYAN", title="💬 Fetching inboxes...", description=f"Please wait while we fetch all the inboxes in this server!")
+				self.response_auto = await self.SendMessage(channel = self._ctx['channel'], color="CYAN", title="💬 Fetching inboxes...", description=f"Please wait while we fetch all the inboxes in this server!")
 
 				channels = await self.app.client.conversations_list(types="public_channel,private_channel")
 
@@ -766,17 +963,17 @@ class T3SF(object):
 				image = {"image_url":"https://i.ibb.co/34rTqMH/image.png", "name": "regex"}
 				buttons = [{"text":"Yes!", "style": "primary", "value": regex, "action_id": "regex_yes"},{"text":"No.", "style": "danger", "value": "click_me_456", "action_id": "regex_no"}]
 				
-				self.response_auto = await self.EditMessage(response=self.response_auto, color_sl="CL_GREEN", title = "ℹ️ Regex detected!", description = f"Please confirm if the regex detected for the channels, is correct so we can get the inboxes!\n\nExample:\ninbox-legal\nThe regex should be `inbox-`\n\n*Detected regex:* `{regex}`\n\n\nPlease select your answer below.", image=image, buttons = buttons)
+				self.response_auto = await self.EditMessage(response=self.response_auto, color="GREEN", title = "ℹ️ Regex detected!", description = f"Please confirm if the regex detected for the channels, is correct so we can get the inboxes!\n\nExample:\ninbox-legal\nThe regex should be `inbox-`\n\n*Detected regex:* `{regex}`\n\n\nPlease select your answer below.", image=image, buttons = buttons)
 				self.regex_ready = False
 
 			else:
 				mensaje_inboxes = ""
-				self.response_auto = await self.SendMessage(channel = self._ctx['channel'], color_sl="CL_CYAN", title="💬 Fetching inboxes...", description=f"Please wait while we fetch all the inboxes in this server!")
+				self.response_auto = await self.SendMessage(channel = self._ctx['channel'], color="CYAN", title="💬 Fetching inboxes...", description=f"Please wait while we fetch all the inboxes in this server!")
 
 				for player in self.inboxes_all:
 					mensaje_inboxes += f"Inbox {player} [{self.inboxes_all[player]}]\n"
 
-				self.response_auto = await self.EditMessage(response=self.response_auto, color_sl="CL_YELLOW", title = f"📩 Inboxes fetched! [{len(self.inboxes_all)}]", description=mensaje_inboxes)
+				self.response_auto = await self.EditMessage(response=self.response_auto, color="YELLOW", title = f"📩 Inboxes fetched! [{len(self.inboxes_all)}]", description=mensaje_inboxes)
 
 				self.regex_ready = True
 
@@ -787,10 +984,14 @@ class T3SF(object):
 
 			player = self._inject['Player']
 
-			if not (self._inject.get('Photo') is None):
-				image = {"name": self._inject['Picture Name'], "image_url": self._inject['Photo']}
+			if "Photo" in self._inject and self._inject['Photo'] != '':
+				if "Picture Name" in self._inject and self._inject['Picture Name'] == '' or "Photo" not in self._inject:
+					attachment_name = "attachment.jpg"
+				else:
+					attachment_name = self._inject['Picture Name']
+				image = {"name": attachment_name, "image_url": self._inject['Photo']}
 			
-			if not (self._inject.get('Profile') is None):
+			if "Profile" in self._inject and self._inject['Profile'] != '':
 				author["image_url"] = self._inject['Profile']
 				
 			else:
@@ -801,18 +1002,65 @@ class T3SF(object):
 				])
 				author["image_url"] = profile_pic
 			
-			await self.SendMessage(channel = self.inboxes_all[player], title= self._inject['Subject'], description=self._inject["Script"], image=image, author=author, color_sl="CL_CYAN")
+			await self.SendMessage(channel = self.inboxes_all[player], title=self._inject['Subject'], description=self._inject["Script"], image=image, author=author, color="CYAN")
 
 			return True
 
-		async def SendMessage(self, color_sl=None, title:str=None, description:str=None, channel=None, image=None, author=None, buttons=None, text_input=None, checkboxes=None):
+		async def PollHandler(self):
+			self.poll_answered = False
+			
+			image = None
+
+			player = self._inject['Player']
+
+			if "Photo" in self._inject and self._inject['Photo'] != '':
+				if "Picture Name" in self._inject and self._inject['Picture Name'] == '' or "Photo" not in self._inject:
+					attachment_name = "attachment.jpg"
+				else:
+					attachment_name = self._inject['Picture Name']
+				image = {"name": attachment_name, "image_url": self._inject['Photo']}
+
+			poll_options = self._inject['Poll'].split('|')
+			
+			actual_real_time = re.sub("([^0-9])", "", self._inject['Real Time'])[-2:]
+			
+			next_real_time = re.sub("([^0-9])", "", self.data[int(self._inject['#'])]['Real Time'])[-2:]
+
+			diff = int(next_real_time) - int(actual_real_time)
+			if diff < 0:
+				diff_no_real = int(actual_real_time) - int(next_real_time)
+				diff = 60 - diff_no_real 
+
+			diff_secs = diff * 60
+
+			description = self._inject["Script"] + f"\n\nYou have {diff} minute(s) to answer this poll!"
+
+			buttons = [{"text": poll_options[0], "style": "primary", "value": 'option1', "action_id": "option1"},{"text":poll_options[1], "style": "primary", "value": "option2","action_id": "option2"}]
+
+			self.response_poll = await self.SendMessage(channel = self.inboxes_all[player], title=self._inject['Subject'], description=description, image=image, buttons=buttons, color="YELLOW")
+
+			return True
+
+		async def PollAnswerHandler(self, body=None, payload=None):
+			poll_msg = body['message']['attachments'][0]['fallback']
+			poll_msg = poll_msg[: poll_msg.rfind('\n')]
+			action_user = body['user']['username']
+			selected_option = payload['text']['text']
+			description = f'{poll_msg}\n\n@{action_user} selected: {selected_option}'
+
+			self.poll_answered = True
+			self.response_poll = await self.EditMessage(style="simple", color = "GREEN", title="Poll Answered!", description=description, response=self.response_poll)
+			await self.NotifyGameMasters(type_info="poll_answered", data={'msg_poll':poll_msg,'answer':selected_option,'user':action_user})
+			return True
+
+		async def SendMessage(self, color=None, title:str=None, description:str=None, channel=None, image=None, author=None, buttons=None, text_input=None, checkboxes=None):
 			if channel == None:
 				channel = self._ctx['channel']
-			self.response = await self.app.client.chat_postMessage(channel = channel, attachments = self.Slack.Formatter(title=title, description=description, color=color_sl, image=image, author=author, buttons=buttons, text_input=text_input, checkboxes=checkboxes))
+			self.response = await self.app.client.chat_postMessage(channel = channel, attachments = self.Slack.Formatter(title=title, description=description, color=color, image=image, author=author, buttons=buttons, text_input=text_input, checkboxes=checkboxes))
 			return self.response
 
-		async def EditMessage(self, color_sl=None, title:str=None, description:str=None, response=None, image=None, author=None, buttons=None, text_input=None, checkboxes=None):
-			self.response = await self.app.client.chat_update(channel=response['channel'], ts=response['ts'], attachments = self.Slack.Formatter(title=title, description=description, color=color_sl, image=image, author=author, buttons=buttons, text_input=text_input, checkboxes=checkboxes))
+		async def EditMessage(self, color=None, title:str=None, description:str=None, response=None, image=None, author=None, buttons=None, text_input=None, checkboxes=None):
+			self.response = await self.app.client.chat_update(channel=response['channel'], ts=response['ts'], attachments = self.Slack.Formatter(title=title, description=description, color=color, image=image, author=author, buttons=buttons, text_input=text_input, checkboxes=checkboxes))
 			return self.response
 
 	class Whatsapp():
