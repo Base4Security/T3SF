@@ -1,6 +1,24 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.2] - 2023-04-05
+
+Official release of v1.2 - New features, bug fixes, and stability improvements included!
+
+### Newly added
+- Now for **Slack** and **Discord**, you no longer need to create a bot, now the framework handles completely that part with integrated bots.
+- Guided User Interface (GUI) for management purposes. Now you can control, see the logs and exercise status in real time in a newly designed Web interface.
+- New framework's modular structure.
+- New simplified user's input, now you can run a TTX with just a few lines of code, less than 10!
+- New class to log all the output from the bots and framework, such as status, errors, warnings and more.
+
+### Updated
+- Updated the code to work with all updates to the specified platform libraries.
+- Requirements are now fullfilled when installing the framework with the specified module, as `pip3 install "T3SF[Platform]"`.
+
+### Deprecated
+- This versions is not ready for platforms as **Telegram** and **WhatsApp**, we are constantly working to update the framework for all the platforms. If you want to use the framework with those platform, use the previous `Version 1.1`.
+
 ## [1.1] - 2022-10-28
 
 Version 1.1 has been officially released, with new features, bug fixes and stability issues resolved!

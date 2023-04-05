@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>T3SF - GUI</title>
+	<link rel="icon" type="image/x-icon" href="https://user-images.githubusercontent.com/103124157/164258966-7a049d6c-4012-49ca-8f7d-2bb814c24009.png">
+
+	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+	
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+
+
+	<style type="text/css">
+		#logs-content {
+			height: 500px;
+			overflow: auto;
+			white-space: pre-wrap;
+			flex-grow: 1;
+		}
+		@media (max-width: 991px) {
+			html, body, #logs-content {
+				height: 100%;
+				width: 100%;
+				max-width: none;
+			}
+
+			#logs-content {
+				margin-top: 0;
+			}
+		}
+
+		.log-type-DEBUG {
+			float: left;
+			color: blue;
+		}
+		.log-type-INFO {
+			float: left;
+			color: green;
+		}
+		.log-type-WARN {
+			float: left;
+			color: #FFC107;
+		}
+		.log-type-ERROR {
+			float: left;
+			color: red;
+		}
+
+		.log-timestamp {
+			font-size: 12px;
+			color: gray;
+			float: right;
+		}
+
+		#logs-level-dropdown {
+			border: 1px solid #ccc;
+			border-radius: 4px;
+			padding: 4px 8px;
+			font-size: 16px;
+			font-family: Arial, sans-serif;
+			color: #333;
+			background-color: #fff;
+			box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+			transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+		}
+
+		#logs-level-dropdown:focus {
+			outline: none;
+			border-color: #007bff;
+			box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 0 2px rgba(0, 123, 255, 0.5);
+		}
+
+		#logs-level-form label {
+			font-size: 16px;
+			font-family: Arial, sans-serif;
+			font-weight: bold;
+			margin-right: 8px;
+			color: #333;
+		}
+
+
+		#logs-level-form-container {
+		  display: inline-block;
+		}
+
+		#logs-level-form,
+		#logs-level-dropdown {
+		  display: inline-block;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<div class="p-5 mb-4 bg-light rounded-3">
+			<h1 class="display-5 fw-bold">T3SF - Management GUI</h1>
+			<p class="col-md-8 fs-4">View and control the status of the exercise.</p>
+		</div>
+	</div>
+	
+</div>
+<div class="container" id="content">
+  <div class="row align-items-center">
+    <div class="col">
+      <h3>Logs:</h3>
+    </div>
+    <div class="col-auto">
+      <form id="logs-level-form">
+        <label for="logs-level-dropdown">Set Log <abbr title="Each log level includes all levels above it.">Level</abbr>:</label>
+        <select id="logs-level-dropdown" name="logs-level-dropdown">
+          <option value="DEBUG">Debug</option>
+          <option value="INFO">Info</option>
+          <option value="WARN">Warn</option>
+          <option value="ERROR">Error</option>
+        </select>
+      </form>
+    </div>
+    <div class="col-auto">
+      <button id="start-button" class="btn btn-success">Start</button>
+      <button id="stop-button" class="btn btn-danger">Stop</button>
+      <button id="clear-button" class="btn btn-warning">Clear Logs</button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <div class="bg-light rounded p-3" id="logs-content">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+	// Define the log levels and their corresponding filtering conditions
+	const logLevels = {
+		'DEBUG': 	['DEBUG', 'INFO', 'WARN', 'ERROR'],
+		'INFO': 	['INFO', 'WARN', 'ERROR'],
+		'WARN': 	['WARN', 'ERROR'],
+		'ERROR': 	['ERROR']
+	};
+
+	var historic_logs = [];
+	var eventSource = new EventSource('/stream');
+
+	eventSource.onmessage = function(event) {
+		var message = JSON.parse(event.data);
+		var messageId = message.id;
+
+	  // Get the selected log level
+		var logLevel = $('#logs-level-dropdown').val();
+		var logLevel_stored = localStorage.getItem("log_level");
+
+		if (logLevel !== logLevel_stored) {
+			$("#logs-level-dropdown").val(logLevel_stored).change();
+			logLevel = logLevel_stored;
+		}
+
+	  // Check if the message type matches the filtering condition
+		if (!historic_logs.includes(messageId) && logLevels[logLevel].includes(message.type)) {
+	    // Store to the historics
+			historic_logs.push(messageId);
+
+	    // Format the new log
+			var logString = '<div>\
+			<span class="log-type-'+message.type+'">[' + message.type + '] </span>\
+			<span class="float-start">' + message.content + '</span>\
+			<span class="log-timestamp">' + message.timestamp + '</span>\
+			</div>';
+
+	    // Append the new log
+			$('#logs-content').append(logString);
+
+	    // Scroll to latest message
+			var logsContent = document.getElementById("logs-content");
+			logsContent.scrollTop = logsContent.scrollHeight;
+		}
+	};
+	
+	// Handle filter dropdown change event	
+	$('#logs-level-dropdown').change(function() {
+		log_level = $(this).val();
+		$('#logs-content').empty();
+		localStorage.setItem('log_level', log_level);
+		historic_logs = [];
+	});
+
+	// Handle Start button click event
+	$('#start-button').click(function() {
+		$.ajax({ 
+			type: "GET",
+			url: "start",
+			success: function(data){
+				// alert('started');
+			},
+			error: function(xhr){
+				// alert('not started');
+			}
+		});
+	});
+
+	// Handle Stop button click event
+	$('#stop-button').click(function() {
+		$.ajax({ 
+			type: "GET",
+			url: "stop",
+			success: function(data){
+				eventSource.close();
+				// alert('stopped');
+			},
+			error: function(xhr){
+				// alert('not stopped');
+			}
+		});
+	});
+
+	// Handle clear logs button click event
+	$('#clear-button').click(function() {
+		$.ajax({ 
+			type: "GET",
+			url: "clear",
+			success: function(data){
+				$('#logs-content').empty();
+			},
+			error: function(xhr){
+				// alert('not clear');
+			}
+		});
+	});
+</script>
+
+</body>
+</html>

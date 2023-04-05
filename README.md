@@ -30,7 +30,7 @@
 T3SF is a framework that offers a modular structure for the orchestration of events based on a master scenario events list (MSEL) together with a set of rules defined for each exercise (optional) and a configuration that allows defining the parameters of the corresponding platform. The main module performs the communication with the specific module (Discord, Slack, Telegram, etc.) that allows the events to present the events in the input channels as injects for each platform. In addition, the framework supports different use cases: "single organization, multiple areas", "multiple organization, single area" and "multiple organization, multiple areas".
 
 ## Getting Things Ready <a name = "Starting"></a>
-Platform-independent, you will need to install the framework itself!
+To use the framework with your desired platform, whether it's Slack or Discord, you will need to install the required modules for that platform. But don't worry, installing these modules is easy and straightforward.
 
 To do this, you can follow this simple step-by-step guide, or if you're already comfortable installing packages with `pip`, you can skip to the last step!
 
@@ -40,8 +40,20 @@ python -m venv .venv       # We will create a python virtual enviroment
 source .venv/bin/activate  # Let's get inside it
 
 pip install -U pip         # Upgrade pip
-pip install T3SF           # Install the framework!
 ```
+
+Once you have created a Python virtual environment and activated it, you can install the T3SF framework for your desired platform by running the following command:
+
+```bash
+pip install "T3SF[Discord]"  # Install the framework to work with Discord
+```
+or
+
+```bash
+pip install "T3SF[Slack]"  # Install the framework to work with Slack
+```
+
+This will install the T3SF framework along with the required dependencies for your chosen platform. Once the installation is complete, you can start using the framework with your platform of choice.
 
 We strongly recommend following the platform-specific guidance within our Read The Docs! Here are the links:
 
@@ -53,85 +65,27 @@ We strongly recommend following the platform-specific guidance within our Read T
 ## Usage <a name="Usage"></a>
 We created this framework to simplify all your work!
 
-You will need to edit the `config.ini` file with your desired platform and the file to fetch your incidents.
+Once you have everything ready, use our template for the `main.py`, or modify the following code:
 
-Here is an example if you want to run the framework with the `Discord` bot.
-
-```ini
-[General]
-Platform : Discord
-
-TTX_File : MSEL_BASE4.json
-```
-
-Here is a code snippet used as an example of the [Discord bot](./Discord/bot.py):
+Here is an example if you want to run the framework with the `Discord` bot and a `GUI`.
 
 ```python
-from discord.ext import commands
-from dotenv import load_dotenv
-import discord
-import os
-
 from T3SF import T3SF
+import asyncio
 
-load_dotenv()
+async def main():
+    await T3SF.start(MSEL="MSEL_TTX.json", platform="Discord", gui=True)
 
-TOKEN = os.getenv('DISCORD_TOKEN')
-
-intents = discord.Intents.default()
-intents.message_content = True
-bot = commands.Bot(command_prefix='!', intents=intents)
-
-T3SF = T3SF(bot=bot) # We need to pass the bot's object to the framework.
-
-@bot.event
-async def on_interaction(interaction):
-    await T3SF.PollAnswerHandler(payload=interaction)
-
-@bot.command(name="start", help='Starts the Incidents Game. Usage -> !start')
-async def start(ctx):
-        # When the bot receives the command !start,
-        # we are going to start the game!
-        await T3SF.ProcessIncidents(function_type = "start", ctx=ctx) 
-
-bot.run(TOKEN)
-
+if __name__ == '__main__':
+    asyncio.run(main())
 ```
 
-Here is another code snippet for the [Slack bot](./Slack/bot.py)
+Or if you prefer to run the framework without `GUI` and with `Slack` instead, you can modify the arguments, and that's it! 
+
+Yes, that simple!
 
 ```python
-from slack_bolt.adapter.socket_mode.async_handler import AsyncSocketModeHandler
-from slack_bolt.app.async_app import AsyncApp
-from dotenv import load_dotenv
-import asyncio
-import os
-
-from T3SF import *
-
-load_dotenv()
-
-app = AsyncApp(token=os.environ["SLACK_BOT_TOKEN"])
-
-T3SF = T3SF(app=app) # We need to pass the app's object to the framework.
-
-@app.action(re.compile("option"))
-async def poll_handler(ack, body, payload):
-    await T3SF.PollAnswerHandler(ack=ack,body=body,payload=payload)
-
-@app.message("!start")
-async def start(message, say):
-    # When the bot receives the command !start,
-    # we are going to start the game!
-    await T3SF.ProcessIncidents(function_type = "start", ctx=message)
-
-# Let's start the bot!
-async def main():
-    handler = AsyncSocketModeHandler(app, os.environ["SLACK_APP_TOKEN"])
-    await handler.start_async()
-
-if __name__ == "__main__":
-    asyncio.run(main())
+await T3SF.start(MSEL="MSEL_TTX.json", platform="Slack", gui=False)
 ```
 
 If you need more help, you can always check our documentation [here](https://t3sf.readthedocs.io/en/latest/)!
