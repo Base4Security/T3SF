@@ -1,6 +1,22 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [2.0] - 2023-05-05
+
+Upgrade to version 2.0 for new features, bug fixes, and improved stability. In this version we have automated some important processes. 
+
+### Added
+- New navigation bar added to the GUI.
+- Now you can see the status of the framework from the logs viewer.
+- New MSEL Viewer! You can now load a MSEL in JSON format to check every inject's detail.
+- Automatic Environment creation, starting from this version you can automatically create the exercise's environment.
+
+### Updated
+- Updated documentation to match all the functions, features, classes and odules of version 2.0.
+
+### Fixed
+- The communication between the SSE client and server was poorly performed, which generated an infinite loop every 3 seconds.
+
 ## [1.2] - 2023-04-05
 
 Official release of v1.2 - New features, bug fixes, and stability improvements included!

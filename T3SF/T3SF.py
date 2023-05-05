@@ -29,6 +29,7 @@ class T3SF(object):
 		self.ch_names_list = []
 		self.players_list = []
 		self.platform = platform.lower()
+		self.guild_id = None
 
 		try:
 			if os.path.isfile(os.getcwd() + f"/inboxes_{self.platform}.json"):
@@ -103,17 +104,16 @@ class T3SF(object):
 				if player not in self.players_list:
 					self.players_list.append(player)
 			T3SF_Logger.emit(message="We have the inboxes right now", message_type="DEBUG")
-			return True
+			T3SF_Logger.emit(message="Incidents ready", message_type="DEBUG")
+			return self.players_list
 		else:
 			raise RuntimeError("Please set a method to retrieve the TTXs with the argument `MSEL` inside the `start` function.")
-
-		T3SF_Logger.emit(message="Incidents ready", message_type="DEBUG")
 
 	async def start(MSEL:str, platform, gui=False):
 		if gui == True:
 			T3SF_Logger.emit(message="Starting GUI", message_type="DEBUG")
 			gui_module = importlib.import_module("T3SF.gui.core")
-			gui_module.GUI(platform_run=platform)
+			gui_module.GUI(platform_run=platform, MSEL=MSEL)
 		
 		if platform.lower() == "slack":
 			bot_module = importlib.import_module("T3SF.slack.bot")
@@ -371,7 +371,6 @@ class T3SF(object):
 		elif self.platform == "slack":
 			self.response = await Slack.SendMessage(self=self.slack, channel = channel, title=title, description=description, color=color, image=image, author=author, buttons=buttons, text_input=text_input, checkboxes=checkboxes)
 			return self.response
-
 
 	async def EditMessage(self,
 		color=None, 

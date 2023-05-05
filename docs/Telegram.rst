@@ -2,6 +2,8 @@
 Telegram
 *******************
 
+.. warning:: We are currently working to give Telegram support to latest version of T3SF. Please use ``Version 1.1`` if you want to run an exercise on this platform.
+
 .. contents:: Table of Contents
 
 We are expaning our framework's support to this new platform as clients requested us. Not all the functions/features from the main platforms (Discord/Slack) could be migrated due to Telegram limitations.
@@ -101,7 +103,7 @@ Installation
 3. Install requirements.
 	``pip3 install -r requirements.txt``
 	
-	(Optional) Create a virtual enviroment
+	(Optional) Create a virtual environment
 	``python3 -m venv venv``
 4. Create/Get the Bot's token from `@BotFather <https://t.me/BotFather>`_.
 5. Add the token to en ``.env`` file.

@@ -16,7 +16,9 @@ class Discord(object):
 
 			if T3SF_instance.fetch_inboxes == True:
 				if T3SF_instance._ctx == None:
-					channels = self.bot.get_all_channels()
+					# Exercise started from the GUI
+					guild = self.bot.get_guild(int(T3SF_instance.guild_id))
+					channels = guild.text_channels
 
 					for channel in channels:
 						if "chat" in channel.name:
@@ -35,6 +37,7 @@ class Discord(object):
 					channels = T3SF_instance._ctx.message.guild.channels
 					categories = T3SF_instance._ctx.message.guild.categories
 					started_from_gui = False
+
 				except Exception:
 					channels = T3SF_instance._ctx.guild.channels
 					categories = T3SF_instance._ctx.guild.categories

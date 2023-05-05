@@ -1,36 +1,45 @@
+************************
 Installation
-=============
+************************
 
-You can download the framework in 2 ways, one is the framework itself (Core Installation), and the other is based in the platform that you are going to use (eg. Discord, Slack).
+To use the framework with the platform you want, either Slack or Discord, you will have to install the necessary modules and external libraries for that platform. But don't worry, installing these requirements is easy and simple.
 
-CORE Installation
---------------------
+Getting things ready
+=======================
 
 The installation of the framework itself it's really easy!
 
-You just have to run ``pip`` and voila!
+You just have to use ``pip`` and voila!
+
+	
+	.. note::
+		You can create a virtual environment to avoid dependencies issues:
+	
+		``python3 -m venv venv``
 
 ``pip install T3SF``
 
 
 Platform-based installation
-----------------------------
+=======================
 
-1) Git clone the repository. [https://github.com/Base4Security/T3SF]
+Even though we have installed the core framework, we still need to install the additional libraries for each of the platforms.
 
-2) Go to the correspondent platform folder (with cd T3SF/[platform]/
+Discord
+---------
 
-3) Install requirements: 
-	
-	``pip3 install -r requirements.txt.``
+In case you want to use Discord, the installation of the necessary libraries is done as follows
 
-	Create a virtual enviroment (optional): ``python3 -m venv venv``
+``pip install "T3SF[Discord]"``
 
-4) Follow the specific steps for the chosen platform
+*For more information on how to create the Bot and obtain the tokens, please go to the* `specific page <./Discord.html#bot>`_ *of the platform.*
 
-5) Edit the ``config.ini`` file with the correct platform.
 
-6) Run the bot: 
-	``python3 bot.py``
+Slack
+---------
 
-7) You are ready to go!
+On the other hand, if you want to use Slack, you can install them as follows
+
+``pip install "T3SF[Slack]"``
+
+*For more information on how to create the Bot and obtain the tokens, please go to the* `specific page <./Slack.html#bot>`_ *of the platform.*

@@ -36,7 +36,7 @@ To do this, you can follow this simple step-by-step guide, or if you're already 
 
 ```bash
 # Python 3.6+ required
-python -m venv .venv       # We will create a python virtual enviroment
+python -m venv .venv       # We will create a python virtual environment
 source .venv/bin/activate  # Let's get inside it
 
 pip install -U pip         # Upgrade pip

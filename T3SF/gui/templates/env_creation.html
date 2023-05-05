@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+
+
+{% block title %} Environment creation {% endblock %}
+
+{% block extra_head %}
+<style type="text/css">
+		#logs-content {
+			height: 500px;
+			overflow: auto;
+			white-space: pre-wrap;
+			flex-grow: 1;
+		}
+		@media (max-width: 991px) {
+			html, body, #logs-content {
+				height: 100%;
+				width: 100%;
+				max-width: none;
+			}
+
+			#logs-content {
+				margin-top: 0;
+			}
+		}
+
+		.log-type-DEBUG {
+			float: left;
+			color: blue;
+		}
+		.log-type-INFO {
+			float: left;
+			color: green;
+		}
+		.log-type-WARN {
+			float: left;
+			color: #FFC107;
+		}
+		.log-type-ERROR {
+			float: left;
+			color: red;
+		}
+
+		.log-timestamp {
+			font-size: 12px;
+			color: gray;
+			float: right;
+		}
+
+		#logs-level-dropdown {
+			border: 1px solid #ccc;
+			border-radius: 4px;
+			padding: 4px 8px;
+			font-size: 16px;
+			font-family: Arial, sans-serif;
+			color: #333;
+			background-color: #fff;
+			box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+			transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+		}
+
+		#logs-level-dropdown:focus {
+			outline: none;
+			border-color: #007bff;
+			box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 0 2px rgba(0, 123, 255, 0.5);
+		}
+
+		#logs-level-form label {
+			font-size: 16px;
+			font-family: Arial, sans-serif;
+			font-weight: bold;
+			margin-right: 8px;
+			color: #333;
+		}
+
+		#logs-level-form-container {
+			display: inline-block;
+		}
+
+		#logs-level-form,
+		#logs-level-dropdown {
+			display: inline-block;
+		}
+
+	}
+	</style>
+
+{% endblock %}
+{% block content %}
+<div class="container" id="content">
+	<div class="row align-items-center">
+		<div class="col">
+			<h3>Environment creation</h3>
+		</div>
+		<div class="col-auto">
+			<button id="create_env_button" class="btn btn-success">Create</button>
+		</div>
+	</div>
+	<hr>
+	<div class="row">
+		<div class="col">
+			<div class="row">
+				<div class="col">
+					<h4>Areas: {{ T3SF.players_list|count }} </h4>
+				</div>
+				<div class="col">
+					<h4>Channels to create per Area:</h4>
+				</div>
+				<div class="col">
+					<h4>Channels for Game Masters:</h4>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col">
+					{%- for player in T3SF.players_list -%}
+						<h5 class="text-muted">{{player}}<h5>
+					{%- endfor -%}
+				</div>
+				<div class="col">
+					<h5 class="text-muted">Internal chat<h5>
+					<h5 class="text-muted">Inbox<h5>
+					<h5 class="text-muted">Decision log<h5>
+					{%- if T3SF.platform == "discord" -%}
+						<h5 class="text-muted">Voice channel<h5>
+					{%- endif -%}
+				</div>
+				<div class="col">
+					<h5 class="text-muted">Internal chat<h5>
+					<h5 class="text-muted">Logs<h5>
+					{%- if T3SF.platform == "discord" -%}
+						<h5 class="text-muted">Voice channel<h5>
+					{%- endif -%}
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row" style="visibility: hidden;" id="logs-container">
+		<div class="col">
+			<hr>
+			<div class="bg-light rounded p-3" id="logs-content">
+			</div>
+		</div>
+	</div>
+</div>
+<script>
+	$('#create_env_button').click(function() {
+		{%- if T3SF.platform == "discord" -%}
+		var num = prompt("What's your Discord's server ID? ");
+		var url = "create?server=" + num;
+		{%- else -%}
+		var url = "create";
+		{%- endif -%}
+		$.ajax({ 
+			type: "GET",
+			url: url,
+			beforeSend: function() {
+				document.getElementById('create_env_button').disabled = true;
+				b5toast.show("warning", "Creating environment! ", "To check the status of the Environment creation check the logs below", 3000);
+				$('#logs-content').empty();
+				$("#logs-container").css("visibility", "visible");
+				
+				disclaimer = {% if T3SF.platform == "discord" %}'The server owner should see each created channel.'{% else %}'We will invite the Workspace owner to each created channel.'{% endif %}
+
+				var logString = '<b>\<div>\
+				<span class="log-type-INFO">[INFO] </span>\
+				<span class="float-start"><b>' + disclaimer +'</b></span>\
+				</div></b>';
+				$('#logs-content').append(logString); },
+			success: function(data){
+				b5toast.show("success", "Environment created! ", "View the logs for more information", 3000);
+			},
+			error: function(xhr){
+				document.getElementById('create_env_button').disabled = false;
+				b5toast.show("danger", "Error creating everything! ", "View the logs for more information", 5000);
+			}
+		});
+	});
+</script>
+
+<script>
+	let eventSource = new EventSource('/stream_news');
+	let historic_logs = [];
+
+	eventSource.onopen = function() {
+		handle_sse_start(event);
+	};
+
+	eventSource.onmessage = function(event) {
+		handle_sse_messages(event);
+	};
+
+	eventSource.onerror = function(event) {
+		handle_sse_errors(event);
+	};
+
+	function handle_sse_messages(event){
+		var message = JSON.parse(event.data);
+		var messageId = message.id;
+
+		if (!historic_logs.includes(messageId)) {
+			// Store to the historics
+			historic_logs.push(messageId);
+
+			// Format the new log
+			var logString = '<div>\
+			<span class="log-type-'+message.type+'">[' + message.type + '] </span>\
+			<span class="float-start">' + message.content + '</span>\
+			<span class="log-timestamp">' + message.timestamp + '</span>\
+			</div>';
+
+			// Append the new log
+			$('#logs-content').append(logString);
+
+			// Scroll to latest message
+			var logsContent = document.getElementById("logs-content");
+			logsContent.scrollTop = logsContent.scrollHeight;
+		}
+	};
+
+	function handle_sse_start(event){
+		console.log("Getting server updates");
+	};
+
+	function handle_sse_errors(event){
+		console.log('EventSource error:', event);
+		document.getElementById('create_env_button').disabled = true;
+
+	};
+</script>
+{% endblock %}

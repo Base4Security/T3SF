@@ -1,16 +1,14 @@
 import sys
 import os
 import re
-from sphinx_rtd_theme import __version__ as theme_version
-from sphinx_rtd_theme import __version_full__ as theme_version_full
 import sphinx_rtd_theme
 from sphinx.locale import _
 
 
 project = u'T3SF'
 slug = re.sub(r'\W+', '-', project.lower())
-version = theme_version
-release = theme_version_full
+version = "2.0"
+release = "2.0"
 language = 'en'
 
 extensions = ['sphinx_rtd_theme', 'sphinx_toolbox.confval',]
@@ -22,6 +20,6 @@ html_theme_options = {
     'style_nav_header_background': 'white',
 }
 
-html_logo = "logo.png"
+html_logo = "images/logo.png"
 html_show_sourcelink = True
 html_show_copyright = False

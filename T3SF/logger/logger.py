@@ -1,6 +1,8 @@
+from T3SF.gui.core import MessageAnnouncer
 from datetime import datetime
 import json
 import uuid
+
 
 class T3SF_Logger:
     @staticmethod
@@ -19,8 +21,11 @@ class T3SF_Logger:
             # Convert the dictionary to a JSON string
             sse_msg = f"data: {json.dumps(message_data)}\n\n"
 
+            announcer = MessageAnnouncer()
+            announcer.announce(msg=sse_msg)
+
             # Do something with the EventSource-formatted message, such as writing it to a file
-            with open('logs.txt', 'a') as f:
+            with open('logs.txt', 'a+') as f:
                 f.write(sse_msg)
 
             # Print some critical information to the terminal

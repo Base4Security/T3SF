@@ -1,16 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<title>T3SF - GUI</title>
-	<link rel="icon" type="image/x-icon" href="https://user-images.githubusercontent.com/103124157/164258966-7a049d6c-4012-49ca-8f7d-2bb814c24009.png">
+{% extends 'base.html' %}
 
-	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+{% block title %} Logs Viewer {% endblock %}
 
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
-	
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
-
-
+{% block extra_head %}
 	<style type="text/css">
 		#logs-content {
 			height: 500px;
@@ -79,55 +71,103 @@
 			color: #333;
 		}
 
-
 		#logs-level-form-container {
-		  display: inline-block;
+			display: inline-block;
 		}
 
 		#logs-level-form,
 		#logs-level-dropdown {
-		  display: inline-block;
+			display: inline-block;
 		}
-	</style>
-</head>
 
-<body>
-	<div class="container">
-		<div class="p-5 mb-4 bg-light rounded-3">
-			<h1 class="display-5 fw-bold">T3SF - Management GUI</h1>
-			<p class="col-md-8 fs-4">View and control the status of the exercise.</p>
+		.status-indicator {
+			display: flex;
+			align-items: center;
+		}
+
+		.status-indicator h5 {
+			margin: 0;
+		}
+
+		.status-indicator .dot {
+			display: inline-block;
+			width: 10px;
+			height: 10px;
+			margin-right: 5px;
+			background-color: #7CFC00;
+			border-radius: 50%;
+			animation: pulse 1s ease-out infinite;
+		}
+
+		.status-indicator.active .dot {
+			background-color: #7CFC00;
+			animation-name: pulse-active;
+		}
+
+		.status-indicator.inactive .dot {
+			background-color: #fc0000;
+			animation: pulse-inactive 1s ease-out infinite;
+		}
+
+		@keyframes pulse-active {
+			0% {
+				box-shadow: 0 0 0 0px rgba(124, 252, 0, 0.4);
+			}
+			100% {
+				box-shadow: 0 0 0 10px rgba(124, 252, 0, 0);
+			}
+		}
+
+		@keyframes pulse-inactive {
+			0% {
+				box-shadow: 0 0 0 0px rgba(252, 0, 0, 0.4);
+			}
+			100% {
+				box-shadow: 0 0 0 10px rgba(252, 0, 0, 0);
+			}
+		}
+	}
+	</style>
+
+{% endblock %}
+
+{% block content %}
+<div class="container" id="content">
+	<div class="row align-items-center">
+		<div class="col">
+			<h3>Logs</h3>
+		</div>
+		<div class="col-auto">
+			<form id="logs-level-form">
+				<label for="logs-level-dropdown">Set Log <abbr title="Each log level includes all levels above it.">Level</abbr>:</label>
+				<select id="logs-level-dropdown" name="logs-level-dropdown">
+					<option value="DEBUG">Debug</option>
+					<option value="INFO">Info</option>
+					<option value="WARN">Warn</option>
+					<option value="ERROR">Error</option>
+				</select>
+			</form>
+		</div>
+		<div class="col-auto">
+			<button id="start-button" class="btn btn-success">Start</button>
+			<button id="stop-button" class="btn btn-danger">Stop</button>
+			<button id="clear-button" class="btn btn-warning">Clear Logs</button>
 		</div>
 	</div>
-	
-</div>
-<div class="container" id="content">
-  <div class="row align-items-center">
-    <div class="col">
-      <h3>Logs:</h3>
-    </div>
-    <div class="col-auto">
-      <form id="logs-level-form">
-        <label for="logs-level-dropdown">Set Log <abbr title="Each log level includes all levels above it.">Level</abbr>:</label>
-        <select id="logs-level-dropdown" name="logs-level-dropdown">
-          <option value="DEBUG">Debug</option>
-          <option value="INFO">Info</option>
-          <option value="WARN">Warn</option>
-          <option value="ERROR">Error</option>
-        </select>
-      </form>
-    </div>
-    <div class="col-auto">
-      <button id="start-button" class="btn btn-success">Start</button>
-      <button id="stop-button" class="btn btn-danger">Stop</button>
-      <button id="clear-button" class="btn btn-warning">Clear Logs</button>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col">
-      <div class="bg-light rounded p-3" id="logs-content">
-      </div>
-    </div>
-  </div>
+	<div class="row">
+		<div class="col">
+			<div class="bg-light rounded p-3" id="logs-content">
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col">
+			<div class="status-indicator" id="status-indicator">
+				<span class="dot"></span>
+				<h5 id="status-indicator-text"></h5>
+			</div>
+		</div>
+	</div>
 </div>
 
 <script>
@@ -139,61 +179,66 @@
 		'ERROR': 	['ERROR']
 	};
 
-	var historic_logs = [];
-	var eventSource = new EventSource('/stream');
+	let eventSource = new EventSource('/stream');
+	let historic_logs = [];
+
+	eventSource.onopen = function() {
+		handle_sse_start(event);
+	};
 
 	eventSource.onmessage = function(event) {
-		var message = JSON.parse(event.data);
-		var messageId = message.id;
-
-	  // Get the selected log level
-		var logLevel = $('#logs-level-dropdown').val();
-		var logLevel_stored = localStorage.getItem("log_level");
-
-		if (logLevel !== logLevel_stored) {
-			$("#logs-level-dropdown").val(logLevel_stored).change();
-			logLevel = logLevel_stored;
-		}
-
-	  // Check if the message type matches the filtering condition
-		if (!historic_logs.includes(messageId) && logLevels[logLevel].includes(message.type)) {
-	    // Store to the historics
-			historic_logs.push(messageId);
-
-	    // Format the new log
-			var logString = '<div>\
-			<span class="log-type-'+message.type+'">[' + message.type + '] </span>\
-			<span class="float-start">' + message.content + '</span>\
-			<span class="log-timestamp">' + message.timestamp + '</span>\
-			</div>';
-
-	    // Append the new log
-			$('#logs-content').append(logString);
-
-	    // Scroll to latest message
-			var logsContent = document.getElementById("logs-content");
-			logsContent.scrollTop = logsContent.scrollHeight;
-		}
+		handle_sse_messages(event);
 	};
-	
+
+	eventSource.onerror = function(event) {
+		handle_sse_errors(event);
+	};
+
 	// Handle filter dropdown change event	
 	$('#logs-level-dropdown').change(function() {
 		log_level = $(this).val();
 		$('#logs-content').empty();
 		localStorage.setItem('log_level', log_level);
 		historic_logs = [];
+
+		// Restart the SSE connection
+		eventSource.close();
+		eventSource = new EventSource('/stream');
+
+	// Set up event listeners on the new EventSource object
+		eventSource.onopen = function(event) {
+			handle_sse_start(event);
+		}
+
+		eventSource.onmessage = function(event) {
+			handle_sse_messages(event);
+		}
+
+		eventSource.onerror = function(event) {
+			handle_sse_errors(event);
+		}
 	});
 
 	// Handle Start button click event
 	$('#start-button').click(function() {
+		{%- if platform == "discord" -%}
+		var num = prompt("What's your Discord's server ID? ");
+		var url = "start?server=" + num;
+		{%- else -%}
+		var url = "start";
+		{%- endif -%}
 		$.ajax({ 
 			type: "GET",
-			url: "start",
+			url: url,
+			beforeSend: function() {
+				document.getElementById('start-button').disabled = true;
+			},
 			success: function(data){
 				// alert('started');
 			},
 			error: function(xhr){
 				// alert('not started');
+				document.getElementById('start-button').disabled = false;
 			}
 		});
 	});
@@ -226,7 +271,68 @@
 			}
 		});
 	});
-</script>
 
-</body>
-</html>
+	function handle_sse_messages(event){
+		var message = JSON.parse(event.data);
+		var messageId = message.id;
+
+		// Get the selected log level
+		var logLevel = $('#logs-level-dropdown').val();
+		var logLevel_stored = localStorage.getItem("log_level");
+
+		if (logLevel !== logLevel_stored) {
+			$("#logs-level-dropdown").val(logLevel_stored).change();
+			logLevel = logLevel_stored;
+		}
+
+		// Check if the message type matches the filtering condition
+		if (!historic_logs.includes(messageId) && logLevels[logLevel].includes(message.type)) {
+			// Store to the historics
+			historic_logs.push(messageId);
+
+			// Format the new log
+			var logString = '<div>\
+			<span class="log-type-'+message.type+'">[' + message.type + '] </span>\
+			<span class="float-start">' + message.content + '</span>\
+			<span class="log-timestamp">' + message.timestamp + '</span>\
+			</div>';
+
+			// Append the new log
+			$('#logs-content').append(logString);
+
+			// Scroll to latest message
+			var logsContent = document.getElementById("logs-content");
+			logsContent.scrollTop = logsContent.scrollHeight;
+		}
+	};
+
+	function handle_sse_start(event){
+		console.log("Getting server updates");
+		setStatusIndicatorActive(true);
+	};
+
+	function handle_sse_errors(event){
+		console.log('EventSource error:', event);
+		setStatusIndicatorActive(false);
+		document.getElementById('start-button').disabled = true;
+		document.getElementById('stop-button').disabled = true;
+
+	};
+
+	// Add or remove the "active" class to the status indicator
+	function setStatusIndicatorActive(isActive) {
+		const indicator = document.querySelector('#status-indicator');
+		if (isActive) {
+			document.getElementById('status-indicator-text').innerHTML = 'Framework status: Active';
+			indicator.classList.add('active');
+			indicator.classList.remove('inactive');
+		}
+		else {
+			document.getElementById('status-indicator-text').innerHTML = 'Framework status: Inactive';
+			indicator.classList.add('inactive');
+			indicator.classList.remove('active');	
+		}
+	}
+
+</script>
+{% endblock %}

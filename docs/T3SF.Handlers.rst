@@ -1,11 +1,13 @@
+************************
 Multi Platform Handlers
-=========================
+************************
 
-These functions, unlike the CORE ones, will be like handlers, calling other platform-based functions depending on the platform selected in the ``config.ini`` file.
+These functions, unlike the CORE ones, will be like handlers, calling other platform-based functions depending on the platform selected in the ``platform`` variable when starting the framework.
 
 So if we need to send a message, we'll use :py:meth:`SendMessage` and in there we'll handle the correct platform to send the message.
 
 .. py:function:: SendMessage(title:str=None, description:str=None, color_ds:str=None, color_sl:str=None, channel=None, image=None, author=None, buttons=None, text_input=None, checkboxes=None)
+	:async:
 
 	Message sending controller for all platforms.
 
@@ -25,7 +27,7 @@ So if we need to send a message, we'll use :py:meth:`SendMessage` and in there w
 
 	.. confval:: color_ds
 
-	Parameter with the color of the embedded message.
+		Parameter with the color of the embedded message.
 
 		.. note::
 			This parameter is only used for Discord.
@@ -35,7 +37,7 @@ So if we need to send a message, we'll use :py:meth:`SendMessage` and in there w
 
 	.. confval:: color_sl
 
-	Parameter with the color of the embedded message.
+		Parameter with the color of the embedded message.
 		
 		.. note::
 			This parameter is only used for Slack. Go to `Slack.Formatter <Slack.html#Formatter>`_ for references.
@@ -94,8 +96,8 @@ So if we need to send a message, we'll use :py:meth:`SendMessage` and in there w
 		:type: ``array``
 		:required: ``False``
 
-
 .. py:function:: EditMessage(title:str=None, description:str=None, color_ds:str=None, color_sl:str=None, response=None, variable=None, image=None, author=None, buttons=None, text_input=None, checkboxes=None)
+	:async:
 
 	Message editing controller for all platforms (which allow editing messages).
 
@@ -115,7 +117,7 @@ So if we need to send a message, we'll use :py:meth:`SendMessage` and in there w
 
 	.. confval:: color_ds
 
-	Parameter with the color of the embedded message.
+		Parameter with the color of the embedded message.
 
 		.. note::
 			This parameter is only used for Discord.
@@ -125,7 +127,7 @@ So if we need to send a message, we'll use :py:meth:`SendMessage` and in there w
 
 	.. confval:: color_sl
 
-	Parameter with the color of the embedded message.
+		Parameter with the color of the embedded message.
 		
 		.. note::
 			This parameter is only used for Slack. Go to `Slack.Formatter <Slack.html#Formatter>`_ for references.
@@ -194,18 +196,18 @@ So if we need to send a message, we'll use :py:meth:`SendMessage` and in there w
 		:type: ``array``
 		:required: ``False``
 
-
 .. py:function:: SendIncident(inject)
+	:async:
 
 	Send the current incident to the correct player.
 	
 	.. confval:: inject
 
-	:type: ``array``
-	:required: ``True``
-
+		:type: ``array``
+		:required: ``True``
 
 .. py:function:: RegexHandler(ack=None, body=None, payload=None, inbox=None)
+	:async:
 
 	In charge of the inboxes gathering part.
 
@@ -214,31 +216,81 @@ So if we need to send a message, we'll use :py:meth:`SendMessage` and in there w
 	
 	.. confval:: ack
 
-	:type: ``object``
-	:required: ``False``
+		:type: ``object``
+		:required: ``False``
 
 	.. confval:: body
 
-	:type: ``array``
-	:required: ``false``
+		:type: ``array``
+		:required: ``false``
 
 	.. confval:: payload
 
-	:type: ``array``
-	:required: ``false``
+		:type: ``array``
+		:required: ``false``
 
 	.. confval:: inbox
 
-	:type: ``str``
-	:required: ``false``
-
+		:type: ``str``
+		:required: ``false``
 
 .. py:function:: InboxesAuto(message=None)
+	:async:
 
 	Handler for the Automatic gathering of inboxes. 
 	
 	.. confval:: message
 
-	:type: ``str``
-	:required: ``False``
+		:type: ``str``
+		:required: ``False``
 
+.. py:function:: SendPoll(inject)
+	:async:
+
+	Send the current poll to the correct player.
+	
+	.. confval:: inject
+
+		:type: ``array``
+		:required: ``True``
+
+.. py:function:: PollAnswerHandler(ack=None, body=None, payload=None, query=None)
+	:async:
+
+	Detects the answer in the poll sent. Modifies the poll message and notifies the game master about the selected option.
+
+	.. confval:: ack
+
+		Acknowledge object to inform Slack that we have received the interaction.
+
+		:type: ``obj``
+		:required: ``False``
+		.. note::
+			This parameter is only used for Slack.
+
+	.. confval:: body
+
+		The body of the interaction.
+
+		:type: ``obj``
+		:required: ``False``
+		.. note::
+			This parameter is only used for Slack.
+
+	.. confval:: payload
+
+		The user's input.
+
+		:type: ``obj``
+		:required: ``False``
+		.. note::
+			This parameter is only used for Slack.
+
+	.. confval:: query
+
+		The query of the message.
+
+		:type: ``obj``
+		:required: ``False``
+		.. note::
+			This parameter is only used for Discord.

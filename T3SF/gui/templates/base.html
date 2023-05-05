@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>{% block title %} {% endblock %} | T3SF - GUI</title>
+	<link rel="icon" type="image/x-icon" href="https://user-images.githubusercontent.com/103124157/164258966-7a049d6c-4012-49ca-8f7d-2bb814c24009.png">
+
+	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+	
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+
+
+	<style type="text/css">
+		@media screen and (min-width:1000px){
+			.nav-item {
+				line-height:60px;
+			}
+		}
+	</style>
+
+	{% block extra_head %} {% endblock %}
+
+<body>
+	<nav class="navbar navbar-expand-lg navbar-light p-3" id="headerNav">
+	  <div class="container-fluid">
+		<a class="navbar-brand d-block d-lg-none" href="#">
+		  <img src="https://user-images.githubusercontent.com/103124157/164258966-7a049d6c-4012-49ca-8f7d-2bb814c24009.png" height="80" />
+		</a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+		  <span class="navbar-toggler-icon"></span>
+		</button>
+	
+		<div class=" collapse navbar-collapse" id="navbarNavDropdown">
+		  <ul class="navbar-nav mx-auto ">
+			<li class="nav-item">
+			  <a class="nav-link mx-2" href="https://github.com/Base4Security/T3SF">Github Project</a>
+			</li>
+			<li class="nav-item">
+			  <a class="nav-link mx-2 {% if active_page == 'logs_viewer' %}active{% endif %}"  href="{{ url_for('t3sf.index') }}">Logs Viewer</a>
+			</li>
+			<li class="nav-item d-none d-lg-block">
+			  <a class="nav-link mx-2" href="#">
+				<img src="https://user-images.githubusercontent.com/103124157/164258966-7a049d6c-4012-49ca-8f7d-2bb814c24009.png" height="80" />
+			  </a>
+			</li>
+			<li class="nav-item">
+			  <a class="nav-link mx-2 {% if active_page == 'msel_viewer' %}active{% endif %}" href="{{ url_for('t3sf.msel_viewer') }}">MSEL Viewer</a>
+			</li>
+			<li class="nav-item">
+			  <a class="nav-link mx-2 {% if active_page == 'env_creation' %}active{% endif %}" href="{{ url_for('t3sf.env_creation') }}">Create environment</a>
+			</li>
+			
+		  </ul>
+		</div>
+	  </div>
+	</nav>
+	<!-- Toast Placeholder -->
+	<div class="position-fixed top-0 end-0 p-3" id="toast-container"></div>
+	<footer class="footer fixed-bottom bg-light">
+	  <div class="container-fluid">
+	    <div class="row">
+	      <div class="col text-center text-muted">
+	        <p>Version 2.0 | Found a bug? Let us know! <a href="https://github.com/Base4Security/T3SF/issues/new/choose">Submit a bug report</a>.</p>
+	      </div>
+	    </div>
+	  </div>
+	</footer>
+	<script type="text/javascript">
+		const b5toastContainerElement = document.getElementById("toast-container");
+
+		const b5toast = {
+			delayInMilliseconds: 5000,
+			htmlToElement: function (html) {
+				const template = document.createElement("template");
+				html = html.trim();
+				template.innerHTML = html;
+				return template.content.firstChild;
+			},
+			show: function (color, title, message, delay) {
+				title = title ? title : "";
+				if (color == "warning") {
+					txt_color = "black";
+				}
+				else{
+					txt_color = "white";
+				}
+				const html = `
+				<div class="toast align-items-center mt-1 text-${txt_color} bg-${color} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+					<div class="d-flex">
+						<div class="toast-body">
+							<b>${title}</b>
+							<div><i>${message}</i></div>
+						</div>
+						<button type="button" class="btn-close btn-close-${txt_color} me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+					</div>
+				</div>`;
+				const toastElement = b5toast.htmlToElement(html);
+				b5toastContainerElement.appendChild(toastElement);
+				const toast = new bootstrap.Toast(toastElement, {
+					delay: delay?delay:b5toast.delayInMilliseconds,
+					animation: true
+				});
+				toast.show();
+				setTimeout(() => toastElement.remove(), delay?delay:b5toast.delayInMilliseconds + 3000); // let a certain margin to allow the "hiding toast animation"
+			},
+		};
+	</script>
+{% block content %} {% endblock %}
+</body>
+</html>

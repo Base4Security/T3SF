@@ -1,108 +1,106 @@
+************************
 CORE Functions
-===================
+************************
 
 CORE functions are those functions that are to be used regardless of the selected platform. Basically they are functions for all platforms.
 
-
 .. py:function:: TimeDifference(actual_real_time:int, previous_real_time:int, itinerator:int, resumed:bool)
-	
+	:async:
+
 	Get the difference between two injects. It will make the bot sleep and inform the Game Masters.
 
 	.. confval:: actual_real_time
 		
-	The actual inject's time.
+		The actual inject's time.
 
-	:type: ``int``
-	:required: ``True``
+		:type: ``int``
+		:required: ``True``
 
 	.. confval:: previous_real_time
 		
-	The previous inject's time.
+		The previous inject's time.
 
-	:type: ``int``
-	:required: ``True``
+		:type: ``int``
+		:required: ``True``
 
 
 	.. confval:: itinerator
 		
-	The inject's number. Used when :confval:`resumed` is ``True``.
+		The inject's number. Used when :confval:`resumed` is ``True``.
 
-	:type: ``int``
-	:default: ``None``
-	:required: ``False``
+		:type: ``int``
+		:default: ``None``
+		:required: ``False``
 
 
 	.. confval:: resumed
 		
-	:type: ``bool``
-	:default: ``None``
-	:required: ``False``
-
+		:type: ``bool``
+		:default: ``None``
+		:required: ``False``
 
 .. py:function:: NotifyGameMasters(type_info:str)
+	:async:
 
 	Notify the Game Masters of the different states of the bot, through messages.
 	
 	.. confval:: type_info
 
-	:type: ``str``
-	:required: ``True``
-
+		:type: ``str``
+		:required: ``True``
 
 .. py:function:: ProcessIncidents(ctx, function_type:str=None, itinerator:int=0)
-	
+	:async:
+
 	Process the incidents from the MSEL file.
 
 	.. confval:: ctx
 
-	:type: ``object|array``
-	:required: ``True``
+		:type: ``object|array``
+		:required: ``True``
 
 	.. confval:: function_type
 		
-	Depending the command sent (Start/Resume).
+		Depending the command sent (Start/Resume).
 
-	:type: ``str``
-	:required: ``True``
+		:type: ``str``
+		:required: ``True``
 
 
 	.. confval:: itinerator
 
-	Inject number retrieved from the Game Master, used when :confval:`function_type` equals ``"resume"``.
+		Inject number retrieved from the Game Master, used when :confval:`function_type` equals ``"resume"``.
 
-	:type: ``int``
-	:default: ``None``
-	:required: ``False``
-
+		:type: ``int``
+		:default: ``None``
+		:required: ``False``
 
 .. py:function:: IncidentsFetcher(self)
 	
 	Retrieves the incidents from the desired source, chosen in the config file.
 
+.. py:function:: start(MSEL:str, platform, gui=False)
+	:async:
 
-.. py:function:: similar(a, b)
-
-	Based in graphics, find the similarity between 2 strings.
+	Start the framework. This function takes care of starting the platform bot and also the GUI.
 	
-	.. confval:: a
+	.. confval:: MSEL
 
-	:type: ``str``
-	:required: ``True``
+		The location of the MSEL.
 
-	.. confval:: b
+		:type: ``str``
+		:required: ``True``
 
-	:type: ``str``
-	:required: ``True``
+	.. confval:: platform
 
+		The platform selected for the exercise.
 
-.. py:function:: regex_finder(input)
+		:type: ``str``
+		:required: ``True``
 
-		Matches repeated words counting the amount of times the word is being repeated.
-		
-		.. note:: 
-			This function is used for Slack.
-	
-	.. confval:: input
+	.. confval:: gui
 
-	:type: ``array``
-	:required: ``True``
+		A boolean to determine if we should start the visual interface.
+
+		:type: ``bool``
+		:required: ``False``

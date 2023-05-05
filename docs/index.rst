@@ -1,18 +1,19 @@
+**********************************************************
 T3SF - Technical Tabletop Exercises Simulation Framework
-=========================================================
+**********************************************************
 
 .. contents:: Table of Contents
 
-T3SP is a framework that offers a modular structure for the orchestration of events from a master scenario events list (MSEL) together with a set of rules defined for each exercise (optional) and a configuration that allows defining the parameters of the platform used. The main module performs the communication with the specific platform module (Discord, Slack, Telegram, etc.) which allows the events to be presented in the input channels as injects corresponding to each platform.
+T3SF is a framework that offers a modular structure for the orchestration of events from a master scenario events list (MSEL) together with a set of rules defined for each exercise (optional) and a configuration that allows defining the parameters of the platform used. The main module performs the communication with the specific platform module (Discord, Slack, Telegram, etc.) which allows the events to be presented in the input channels as injects corresponding to each platform.
 
 Schematic
-------------
+==========
 
-.. image:: https://raw.githubusercontent.com/Base4Security/T3SF/main/docs/schema.jpeg
+.. image:: ./images/schema.jpeg
 
 
 Supported platforms
---------------------
+====================
 
 - :doc:`./Discord`
 	- Start / Resume functions for incidents.
@@ -41,13 +42,15 @@ Supported platforms
 
 .. toctree::
 	:caption: T3SF Core
-	:maxdepth: 2
+	:maxdepth: 3
 	:hidden:
 
 	T3SF.Installation
 	T3SF.Usage
 	T3SF.CoreFunctions
 	T3SF.Handlers
+	T3SF.Gui
+	T3SF.Logger
 
 .. toctree::
 	:caption: Supported Platforms

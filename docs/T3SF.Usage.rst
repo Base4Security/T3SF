@@ -4,76 +4,50 @@ Usage
 
 .. contents:: Table of Contents
 
-We basically created the framework to be fast and easy to setup, so if you want to run the bot in Discord, WhatsApp or Telegram you have to simply initiate the T3SF class!
-
-Setting config.ini
-====================
-
-First we have the ``config.ini`` file. Here you will be able to choose the platform you are going to use ``Discord``, ``Slack``, ``Telegram`` or ``WhatsApp``.
-
-Also, you will be able to set the MSEL file's location. Normally you have this file in the same directory as the bot, but you can put it with a complete path!
-
-Below you can find an example config for Discord!
-
-.. code-block::
-
-	[General]
-	Platform : Discord
-
-	TTX_File : MSEL_BASE4.json
+Basically we have created the framework to be quick and easy to set up, so if you want to run the bot in Discord or Slack you just need to start T3SF!
 
 
-Initializing T3SF class
+Initializing T3SF
 =========================
 
-To initiate the class, you have a different two parameters. Depending on the platform, one is used instead of the other:
+To start the framework, you have to set 3 parameters. Depending on the platform and your preferences the following arguments will be set:
 
-.. confval:: bot
+.. confval:: MSEL
 
-	The bot instance.
-
-	:type: ``str``
-	:required: ``False`` -> ``True`` in case that you set the platform as ``Discord/Telegram/WhatsApp``
-	:default: ``None``
-
-.. confval:: app
-
-	The app instance.
+	The location of the MSEL. It accepts the complete file path.
 
 	:type: ``str``
-	:required: ``False`` -> ``True`` in case that you set the platform as ``Slack``
-	:default: ``None``
+	:required: ``True``
 
-After you set everything up, you'll probably start coding! Here are some examples to guide you!
+.. confval:: platform
 
-This example is for a Telegram bot:
+	The platform you want to use.
+
+	:type: ``str``
+	:required: ``True``
+	:values: ``Slack`` or ``Discord``
+
+.. confval:: gui
+
+	Starts the GUI of the framework.
+
+	:type: ``bool``
+	:required: ``False``
+	:default: ``True``
+
+
+This example is for an exercise using the platform Slack with a GUI:
 
 .. code-block:: python3
-
-	[...]
 	
-	from T3SF import *
+	from T3SF import T3SF
+	import asyncio
 
-	bot = Bot(token=os.environ['TELEGRAM_TOKEN'])
+	async def main():
+		await T3SF.start(MSEL="MSEL_Company.json", platform="Slack", gui=True)
 
-	T3SF = T3SF(bot=bot)
-	
-	[...]
-
-
-Here is an example with the Slack bot:
-
-.. code-block:: python3
-
-	[...]
-	
-	from T3SF import *
-
-	app = AsyncApp(token=os.environ["SLACK_BOT_TOKEN"])
-
-	T3SF = T3SF(app=app)
-	
-	[...]
+	if __name__ == '__main__':
+		asyncio.run(main())
 
 And that's it!
 
@@ -81,7 +55,7 @@ And that's it!
 MSEL Configuration
 ===================
 
-The file where you have all injects stored is the Master Scenario Events List (MSEL). From this file, the framework is going to retrieve all the messages and players, so it's like the Heart of the training!
+The file where you have all injects stored is the Master Scenario Events List (MSEL). From this file, the framework is going to retrieve all the messages and players, so it's like the Heart of the exercise!
 
 Format
 ---------
@@ -92,18 +66,19 @@ Here is the first inject from the example in the repo.
 
 .. code-block:: json
 
-	{
+ 	{
 	    "#": 1,
-	    "Real Time": "07:29 AM",
-	    "Date": "Monday 9:30 AM",
-	    "Subject": "Anomalous Files Detected",
-	    "From": "Amazon Web Services",
-	    "Player": "Information Security",
-	    "Script": "We detected some anomalous files in your S3 Bucket.",
-	    "Picture Name": "S3_Bucket.png",
+	    "Real Time": "07:30 PM",
+	    "Date": "Monday  9:40 AM",
+	    "Subject": "[URGENT] Ransom Request!",
+	    "From": "SOC - BASE4",
+	    "Player": "Legal",
+	    "Script": "Team, we received a ransom request. What should we do?",
+	    "Picture Name": "Base_4_SOC.jpg",
 	    "Photo": "https://img2.helpnetsecurity.com/posts2018/aws-s3-buckets-public.jpg",
-	    "Profile": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Amazon_Web_Services_Logo.svg/1024px-Amazon_Web_Services_Logo.svg.png"
- 	}	
+	    "Profile": "https://foreseeti.com/wp-content/uploads/2021/09/Ska%CC%88rmavbild-2021-09-02-kl.-15.44.24.png",
+	    "Poll": "We are checking on it | It is a false positive"
+	 }
 
 .. confval:: #
 
@@ -179,10 +154,24 @@ Here is the first inject from the example in the repo.
 
 .. confval:: Profile
 
-	The profile picture from the sender. If a profile picture is not set for an incident, a default user avatar is going to be used.
+	The profile picture of the sender. If no profile picture is set for an incident, a default user avatar will be used.
 
 	.. note:: 
 		This key is only valid in :doc:`./Discord` and :doc:`./Slack`, due to platform restrictions.
 
 	:type: ``str`` -> Web URL
 	:required: ``False`` -> ``True`` if the platform is :doc:`./Discord` or :doc:`./Slack`.
+
+
+.. confval:: Poll
+
+	Set up a survey to be sent to the players, where they have time to answer depending on the two options.
+
+	.. note:: 
+		This key is only valid in :doc:`./Discord` and :doc:`./Slack`, due to platform restrictions.
+
+	:type: ``str``
+	:required: ``False``
+
+	.. note:: 
+		The options should be separated with a pipe (|) symbol.
