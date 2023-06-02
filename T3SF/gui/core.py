@@ -6,6 +6,7 @@ import uuid
 import queue
 from datetime import datetime
 import json
+from T3SF import utils
 
 bp = Blueprint('t3sf', __name__)
 
@@ -25,8 +26,12 @@ class GUI(Flask):
 	def start_flask_app(self):
 		log = logging.getLogger('werkzeug')
 		log.setLevel(logging.WARNING)
-		print(" * GUI active on - http://127.0.0.1:5000")
-		self.run(debug=False, threaded=True, use_reloader=False)
+		if utils.is_docker():
+			print(" * GUI active on - http://0.0.0.0:5000")
+			self.run(debug=False, threaded=True, use_reloader=False, host="0.0.0.0")
+		else:
+			print(" * GUI active on - http://127.0.0.1:5000")
+			self.run(debug=False, threaded=True, use_reloader=False)
 
 	def start(self):
 		flask_app_thread = threading.Thread(target=self.start_flask_app)
@@ -34,54 +39,56 @@ class GUI(Flask):
 
 listeners = [] 
 class MessageAnnouncer:
-    def __init__(self):
-        self.listeners = []
+	def __init__(self):
+		self.listeners = []
 
-    def listen(self):
-        global listeners
-        listeners.append(queue.Queue(maxsize=10))
-        return listeners[-1]
+	def listen(self):
+		global listeners
+		listeners.append(queue.Queue(maxsize=10))
+		return listeners[-1]
 
-    def announce(self, msg):
-        global listeners
-        # We go in reverse order because we might have to delete an element, which will shift the
-        # indices backward
-        for i in reversed(range(len(listeners))):
-            try:
-                listeners[i].put_nowait(msg)
-            except queue.Full:
-                del listeners[i]
+	def announce(self, msg):
+		global listeners
+		# We go in reverse order because we might have to delete an element, which will shift the
+		# indices backward
+		for i in reversed(range(len(listeners))):
+			try:
+				listeners[i].put_nowait(msg)
+			except queue.Full:
+				del listeners[i]
 
+# SSE 
 @bp.route('/stream', methods=['GET'])
 def listen():
-    def stream():
-        # Yield the previous logs
-        try:
-            with open('logs.txt', 'r+') as f:
-                for line in f:
-                    yield line
-        except FileNotFoundError:
-            with open('logs.txt', 'a+') as f:
-                for line in f:
-                    yield line
+	def stream():
+		# Yield the previous logs
+		try:
+			with open('logs.txt', 'r+') as f:
+				for line in f:
+					yield line
+		except FileNotFoundError:
+			with open('logs.txt', 'a+') as f:
+				for line in f:
+					yield line
 
-        messages = MessageAnnouncer().listen()  # returns a queue.Queue
-        while True:
-            msg = messages.get()  # blocks until a new message arrives
-            yield msg
+		messages = MessageAnnouncer().listen()  # returns a queue.Queue
+		while True:
+			msg = messages.get()  # blocks until a new message arrives
+			yield msg
 
-    return Response(stream(), mimetype='text/event-stream')
+	return Response(stream(), mimetype='text/event-stream')
 
 @bp.route('/stream_news', methods=['GET'])
 def listen_news():
-    def stream():
-        messages = MessageAnnouncer().listen()  # returns a queue.Queue
-        while True:
-            msg = messages.get()  # blocks until a new message arrives
-            yield msg
+	def stream():
+		messages = MessageAnnouncer().listen()  # returns a queue.Queue
+		while True:
+			msg = messages.get()  # blocks until a new message arrives
+			yield msg
 
-    return Response(stream(), mimetype='text/event-stream')
+	return Response(stream(), mimetype='text/event-stream')
 
+# Views 
 @bp.route('/')
 def index():
 	return render_template('index.html', active_page="logs_viewer", platform=platform.lower())
@@ -98,14 +105,26 @@ def env_creation():
 
 	return render_template('env_creation.html', active_page="env_creation", T3SF=T3SF)
 
+# Actions
 @bp.route('/start')
 async def start_exercise():
 	# Start the async task
 
 	if platform.lower() == "discord":
 		from T3SF.discord.bot import run_async_incidents
-		server_id = request.args.get("server")
-		await run_async_incidents(server=server_id)
+		try:
+			server_id = int(request.args.get("server"))
+			await run_async_incidents(server=server_id)
+
+		except (ValueError, TypeError):
+			msg = {
+				"id": str(uuid.uuid4()),
+				"type": "ERROR",
+				"content": "The Token was not provided or is not an integer.",
+				"timestamp": datetime.now().strftime("%H:%M:%S")
+			}
+			MessageAnnouncer().announce(msg=f"data: {json.dumps(msg)}\n\n")
+			return Response("Failed, Token was not provided or is not an integer.", mimetype='text/plain')
 
 	elif platform.lower() == "slack":
 		from T3SF.slack.bot import run_async_incidents
@@ -116,11 +135,16 @@ async def start_exercise():
 
 @bp.route('/stop')
 def stop_exercise():
-	# Kill the slack bot
-	msg = {"id" : str(uuid.uuid4()),"type" : "INFO","content": "Exiting...","timestamp": datetime.now().strftime("%H:%M:%S")}
+	# Kill the script
+	msg = {
+		"id" : str(uuid.uuid4()),
+		"type" : "INFO",
+		"content": "Exiting...",
+		"timestamp": datetime.now().strftime("%H:%M:%S")
+	}
 	MessageAnnouncer().announce(msg=f"data: {json.dumps(msg)}\n\n")
 	time.sleep(1)
-	os.kill(os.getpid(), signal.SIGTERM)
+	os._exit(0)
 
 	# Return a response that triggers the WSGI server to shutdown the application
 	return 'Shutting down...'
@@ -129,8 +153,19 @@ def stop_exercise():
 async def create_env():
 	if platform.lower() == "discord":
 		from T3SF.discord.bot import create_environment
-		server_id = request.args.get("server")
-		await create_environment(server=server_id)
+		try:
+			server_id = int(request.args.get("server"))
+			await create_environment(server=server_id)
+
+		except (ValueError, TypeError):
+			msg = {
+				"id": str(uuid.uuid4()),
+				"type": "ERROR",
+				"content": "The Token was not provided or is not an integer.",
+				"timestamp": datetime.now().strftime("%H:%M:%S")
+			}
+			MessageAnnouncer().announce(msg=f"data: {json.dumps(msg)}\n\n")
+			return Response("Failed, Token was not provided or is not an integer.", mimetype='text/plain')
 
 	elif platform.lower() == "slack":
 		from T3SF.slack.bot import create_environment

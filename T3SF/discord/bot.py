@@ -18,6 +18,7 @@ T3SF_instance = None
 start_incidents_gui = asyncio.Event()
 create_env = asyncio.Event()
 config_MSEL = None
+
 class create_bot():
 	def __init__(self, MSEL):
 		global config_MSEL
@@ -66,6 +67,17 @@ class create_bot():
 				print("ERROR - Start function")
 				print(e)
 				raise
+
+		@bot_discord.event
+		async def on_command_error(ctx, error):
+		    """
+		    Inform if an error with the commands ocurred.
+		    """
+		    if isinstance(error, commands.errors.CheckFailure):
+		        await ctx.send(embed=discord.Embed(colour=discord.Colour.red(), title="Error 401", description='You do not have the "Game Master" role to use this command.'))
+
+		    elif isinstance(error, discord.HTTPException):
+		        await ctx.send(embed=discord.Embed(colour=discord.Colour.red(), title="Error 5xx", description="We got ratelimited by Discord. Please wait a few seconds and try again."))
 
 async def start_bot():
 	T3SF_instance = T3SF.T3SF(platform="discord", bot=bot_discord)
@@ -214,7 +226,7 @@ async def create_gm_channels(guild):
 		role = await guild.create_role(name="Game Master", permissions=all_perms, colour=discord.Colour.green())
 
 	category = await create_category_if_not_exists(guild=guild, name="Control Room", private=True, role=role)
-	channels = ['chat','logs']
+	channels = ['gm-chat','logs']
 
 	for channel in channels:
 		await create_channel_if_not_exists(category=category, name=channel)

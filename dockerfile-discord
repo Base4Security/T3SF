@@ -1,0 +1,21 @@
+# Use an official Python runtime as the base image
+FROM python:3.9-slim
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Install the required dependencies
+# RUN pip3 install "T3SF[Discord]"
+
+RUN pip3 install "flask[async]" discord.py python-dotenv
+
+# Copy the main.py script to the container
+COPY ./docker/main-discord.py main.py
+
+# Copy the framework to the container
+COPY ./T3SF/ T3SF/
+
+STOPSIGNAL SIGINT
+
+# Run the main.py script
+ENTRYPOINT ["python", "main.py"]

@@ -12,7 +12,7 @@ from .logger import T3SF_Logger
 
 def keyboard_interrupt_handler(signal_num, frame):
 	T3SF_Logger.emit(message=f"KeyboardInterrupt (ID: {signal_num}) has been caught. Exiting...", message_type="WARN")
-	os.kill(os.getpid(), signal.SIGTERM)
+	os._exit(1)
 
 # Associate the signal handler function with SIGINT (keyboard interrupt)
 signal.signal(signal.SIGINT, keyboard_interrupt_handler)
@@ -329,7 +329,7 @@ class T3SF(object):
 				regex = body['actions'][0]['value']
 				color="GREEN"
 				title="✅ Regex accepted!"
-				description=f"Thanks for confirming the regex for the channels, we are going to use `{user_regex}` to match the inboxes!"
+				description=f"Thanks for confirming the regex for the channels, we are going to use `{regex}` to match the inboxes!"
 
 			self.response_auto = await self.EditMessage(title = title, description = description, color=color, image=image, text_input=text_input, response=self.response_auto)
 

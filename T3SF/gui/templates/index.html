@@ -280,7 +280,11 @@
 		var logLevel = $('#logs-level-dropdown').val();
 		var logLevel_stored = localStorage.getItem("log_level");
 
-		if (logLevel !== logLevel_stored) {
+		if (logLevel === null || logLevel_stored === null) {
+			$("#logs-level-dropdown").val("INFO").change();
+			logLevel = "INFO";
+		}
+		else if (logLevel !== logLevel_stored) {
 			$("#logs-level-dropdown").val(logLevel_stored).change();
 			logLevel = logLevel_stored;
 		}
@@ -309,6 +313,8 @@
 	function handle_sse_start(event){
 		console.log("Getting server updates");
 		setStatusIndicatorActive(true);
+		document.getElementById('start-button').disabled = false;
+		document.getElementById('stop-button').disabled = false;
 	};
 
 	function handle_sse_errors(event){

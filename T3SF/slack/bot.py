@@ -97,7 +97,7 @@ async def create_environment():
 		channels_ids = []
 
 		for player in players_list_local:
-			inbox =  inbox_name + "-" + player.lower().replace(" ", "-")
+			inbox =  inbox_name + "-" + sanitize_channel_name(player)
 			try:
 				channel_id_inbox = await create_channel_if_not_exists(channel_name=inbox, private=True)
 				
@@ -109,7 +109,7 @@ async def create_environment():
 					T3SF.T3SF_Logger.emit(message=f'Player [{player}] - Channel {inbox_name} created', message_type="DEBUG")
 
 				for extra in extra_chnls:
-					channel = extra + "-" + player.lower().replace(" ", "-")
+					channel = extra + "-" + sanitize_channel_name(player)
 				
 					channel_id_extra = await create_channel_if_not_exists(channel_name=channel, private=True)
 					if channel_id_extra:
@@ -193,3 +193,24 @@ async def create_gm_channels(admins):
 	T3SF.T3SF_Logger.emit(message=f'Game Master channels created.', message_type="INFO")
 
 	return True
+
+def sanitize_channel_name(name):
+	# Replace whitespace with a hyphen
+	sanitized_name = re.sub(r"\s", "-", name)
+
+	# Remove special characters except for hyphens and periods
+	sanitized_name = re.sub(r"[^\w.-]", "-", sanitized_name)
+
+	# Replace consecutive hyphens and periods with a single hyphen
+	sanitized_name = re.sub(r"[-.]+", "-", sanitized_name)
+
+	# Remove leading and trailing hyphens
+	sanitized_name = sanitized_name.strip("-")
+
+	# Convert to lowercase
+	sanitized_name = sanitized_name.lower()
+
+	# Truncate to a maximum length of 80 characters
+	sanitized_name = sanitized_name[:80]
+
+	return sanitized_name
