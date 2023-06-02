@@ -1,6 +1,27 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [2.1] - 2023-06-02
+Upgrade to version 2.1 of the T3SF framework to benefit from an array of new features, bug fixes, and enhanced stability. This release brings important updates and automation to streamline various processes within the framework.
+
+### Fixes:
+  - Slack:
+    -Addressed a bug related to the usage of regular expressions by users.
+  - Discord:
+    - Resolved an issue with the automatic environment creation where the Game Master (GM) chat was incorrectly labeled as "chat" instead of "gm-chat".
+  - GUI:
+    - The Start button now correctly re-enables after restarting the framework.
+    - The default logging level has been set to "INFO" to resolve a recursion error that occurred when no logging level was selected.
+
+### New Additions:
+  - Docker Images:
+    - Docker images with specific tags are now available for each currently supported platform, facilitating deployment and management.
+  - Slack:
+    - Introduced a new sanitization function to ensure proper formatting of channel names.
+  - Discord:
+    - Implemented a fail-safe validation for server ID inputs.
+    - Added a new alert to notify users when attempting to start the bot without the Game Master (GM) role from the Discord platform.
+
 ## [2.0] - 2023-05-05
 
 Upgrade to version 2.0 for new features, bug fixes, and improved stability. In this version we have automated some important processes. 
