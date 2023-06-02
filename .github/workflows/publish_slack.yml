@@ -2,8 +2,8 @@ name: Publish Docker Image for Slack
 
 on:
   push:
-    branches:
-      - master
+    branches: 
+      [ "main" ]
 
 jobs:
   build-and-publish:
