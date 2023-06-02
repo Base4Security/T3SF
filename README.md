@@ -6,13 +6,17 @@
 <h3 align="center">T3SF</h3>
 
 <div align="center">
-
+  
   [![Status](https://img.shields.io/badge/status-active-success.svg)]() 
   [![PyPI version](https://badge.fury.io/py/T3SF.svg)](https://badge.fury.io/py/T3SF)
   [![Documentation Status](https://readthedocs.org/projects/t3sf/badge/?version=latest)](https://t3sf.readthedocs.io/en/latest/?badge=latest)
   [![License](https://img.shields.io/badge/license-GPL-blue.svg)](/LICENSE)
   [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6519221.svg)](https://doi.org/10.5281/zenodo.6519221)
-
+</div>
+<div align="center">
+  
+  [![Docker Image for Discord](https://github.com/Base4Security/T3SF/actions/workflows/publish_discord.yml/badge.svg)](https://github.com/Base4Security/T3SF/actions/workflows/publish_discord.yml)
+  [![Docker Image for Slack](https://github.com/Base4Security/T3SF/actions/workflows/publish_slack.yml/badge.svg)](https://github.com/Base4Security/T3SF/actions/workflows/publish_slack.yml)
 </div>
 
 <p align="center"> Technical Tabletop Exercises Simulation Framework
