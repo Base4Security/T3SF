@@ -1,6 +1,6 @@
 <p align="center">
   <a href="" rel="noopener">
- <img width=200px height=200px src="https://user-images.githubusercontent.com/103124157/164258966-7a049d6c-4012-49ca-8f7d-2bb814c24009.png" alt="WhaBot Logo"></a>
+ <img width=200px height=200px src="https://user-images.githubusercontent.com/103124157/164258966-7a049d6c-4012-49ca-8f7d-2bb814c24009.png" alt="T3SF Logo"></a>
 </p>
 
 <h3 align="center">T3SF</h3>
@@ -68,6 +68,39 @@ We strongly recommend following the platform-specific guidance within our Read T
 
 ## Usage <a name="Usage"></a>
 We created this framework to simplify all your work!
+
+
+<details>
+<summary>Using Docker</summary>
+
+### Supported Tags
+- slack → This image has all the requirements to perform an exercise in Slack.
+- discord → This image has all the requirements to perform an exercise in Discord.
+
+
+#### Using it with Slack
+
+```bash
+$ docker run --rm -t --env-file .env -v $(pwd)/MSEL.json:/app/MSEL.json base4sec/t3sf:slack
+```
+
+Inside your `.env` file you have to provide the `SLACK_BOT_TOKEN` and `SLACK_APP_TOKEN` tokens. Read more about it [here](https://t3sf.readthedocs.io/en/latest/Slack.html#providing-the-tokens).
+
+There is another environment variable to set, `MSEL_PATH`. This variable tells the framework in which path the MSEL is located. By default, the container path is `/app/MSEL.json`. If you change the mount location of the volume then also change the variable.
+
+
+#### Using it with Discord
+
+```bash
+$ docker run --rm -t --env-file .env -v $(pwd)/MSEL.json:/app/MSEL.json base4sec/t3sf:discord
+```
+
+Inside your `.env` file you have to provide the `DISCORD_TOKEN` token. Read more about it [here](https://t3sf.readthedocs.io/en/latest/Discord.html#providing-the-token).
+
+There is another environment variable to set, `MSEL_PATH`. This variable tells the framework in which path the MSEL is located. By default, the container path is `/app/MSEL.json`. If you change the mount location of the volume then also change the variable.
+
+---------------------
+</details>
 
 Once you have everything ready, use our template for the `main.py`, or modify the following code:
 
