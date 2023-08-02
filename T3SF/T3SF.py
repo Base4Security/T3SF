@@ -17,12 +17,9 @@ def keyboard_interrupt_handler(signal_num, frame):
 # Associate the signal handler function with SIGINT (keyboard interrupt)
 signal.signal(signal.SIGINT, keyboard_interrupt_handler)
 
-
 class T3SF(object):
 	def __init__(self, bot = None, app = None, platform = None):
 		self.response = None
-		self.process_wait = False
-		self.process_quit = False
 		self.regex_ready = None
 		self.incidents_running = False
 		self.poll_answered = False
@@ -85,8 +82,6 @@ class T3SF(object):
 				await self.NotifyGameMasters(type_info="poll_unanswered", data={'msg_poll':self._inject["Script"]}) 
 
 		except Exception as e:
-			print("Get Time Difference")
-			print(e)
 			T3SF_Logger.emit("Get Time Difference", message_type="ERROR")
 			T3SF_Logger.emit(e, message_type="ERROR")
 			raise
@@ -113,7 +108,7 @@ class T3SF(object):
 		if gui == True:
 			T3SF_Logger.emit(message="Starting GUI", message_type="DEBUG")
 			gui_module = importlib.import_module("T3SF.gui.core")
-			gui_module.GUI(platform_run=platform, MSEL=MSEL)
+			gui_module.GUI(platform_run=platform, MSEL=MSEL, static_url_path='/static', static_folder='static')
 		
 		if platform.lower() == "slack":
 			bot_module = importlib.import_module("T3SF.slack.bot")
@@ -172,8 +167,6 @@ class T3SF(object):
 			return True
 
 		except Exception as e:
-			print("NotifyGameMasters")
-			print(e)
 			T3SF_Logger.emit("NotifyGameMasters", message_type="ERROR")
 			T3SF_Logger.emit(e, message_type="ERROR")
 			raise
@@ -199,12 +192,10 @@ class T3SF(object):
 			bypass_time = True
 
 			for information in self.data:
-				if self.process_quit == True:
+				process_status = await self.check_status()
+
+				if process_status == 'break':
 					break
-				
-				if self.process_wait == True:
-					while self.process_wait == True:
-						await asyncio.sleep(5)
 
 				if itinerator == 0: # Set a variable to get the actual timestamp and the past one, after that checks for differences.
 					itinerator_loop = itinerator
@@ -248,17 +239,33 @@ class T3SF(object):
 
 					itinerator += 1
 			
+			await self.check_status(reset=True)
 			await self.NotifyGameMasters(type_info="finished_incidents") # Informs that the script is completed and there's no remaining incidents.
-			self.process_quit = False
-			self.process_wait = False
 			self.incidents_running = False
 
 		except Exception as e:
-			print("ProcessIncidents function")
-			print(e)
 			T3SF_Logger.emit("ProcessIncidents function", message_type="ERROR")
 			T3SF_Logger.emit(e, message_type="ERROR")
 			raise
+
+	async def check_status(self, reset:bool = False):
+		from .utils import process_wait, process_quit
+
+		if reset:
+			process_quit = False
+			process_wait = False
+			return True
+
+		if process_quit == True:
+			return 'break'
+
+		if process_wait == True:
+			# print(f"We are waiting, because the variable {process_wait} is set to True")
+			await asyncio.sleep(5)
+			await self.check_status()
+			return False
+
+		return True
 
 	async def SendIncident(self, inject):
 		try:
@@ -273,8 +280,6 @@ class T3SF(object):
 			return True
 
 		except Exception as e:
-			print("SendIncident")
-			print(e)
 			T3SF_Logger.emit("SendIncident", message_type="ERROR")
 			T3SF_Logger.emit(e, message_type="ERROR")
 			raise
@@ -292,8 +297,6 @@ class T3SF(object):
 			return True
 
 		except Exception as e:
-			print("SendPoll")
-			print(e)
 			T3SF_Logger.emit("SendPoll", message_type="ERROR")
 			T3SF_Logger.emit(e, message_type="ERROR")
 			raise

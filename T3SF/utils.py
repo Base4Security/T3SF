@@ -2,6 +2,10 @@ from difflib import SequenceMatcher
 from collections import Counter
 import os
 
+process_wait = False
+process_quit = False
+process_started = False
+
 def is_docker():
 	"""
 	Detects if the script is running inside a docker environment.

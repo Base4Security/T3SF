@@ -7,8 +7,8 @@ from sphinx.locale import _
 
 project = u'T3SF'
 slug = re.sub(r'\W+', '-', project.lower())
-version = "2.0"
-release = "2.0"
+version = "2.5"
+release = "2.5"
 language = 'en'
 
 extensions = ['sphinx_rtd_theme', 'sphinx_toolbox.confval',]

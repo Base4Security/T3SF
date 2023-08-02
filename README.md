@@ -15,8 +15,8 @@
 </div>
 <div align="center">
   
-  [![Docker Image for Discord](https://github.com/Base4Security/T3SF/actions/workflows/publish_discord.yml/badge.svg)](https://github.com/Base4Security/T3SF/actions/workflows/publish_discord.yml)
-  [![Docker Image for Slack](https://github.com/Base4Security/T3SF/actions/workflows/publish_slack.yml/badge.svg)](https://github.com/Base4Security/T3SF/actions/workflows/publish_slack.yml)
+  [![Docker Image for Discord](https://github.com/Base4Security/T3SF/actions/workflows/publish_discord.yml/badge.svg)](https://hub.docker.com/r/base4sec/t3sf)
+  [![Docker Image for Slack](https://github.com/Base4Security/T3SF/actions/workflows/publish_slack.yml/badge.svg)](https://hub.docker.com/r/base4sec/t3sf)
 </div>
 
 <p align="center"> Technical Tabletop Exercises Simulation Framework

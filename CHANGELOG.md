@@ -1,6 +1,33 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [2.5] - 2023-08-02
+Upgrade to version 2.5 of the T3SF framework for exciting new features, bug fixes, and an enhanced user experience. This release introduces the MSEL Playground, Dark mode, a Database with AI-generated Events, and much more!
+
+### New
+- Introducing the MSEL Playground, providing real-time editing capabilities for MSEL files.
+  - Added support for uploading .xls/.xlsx files and converting them to JSON format.
+  - Implemented the ability to save modified or converted MSEL files.
+- Refreshed the nav-bar style for an improved visual experience.
+- Created a new static folder for local web resources.
+  - Modified the source for certain images used in the application.
+- Added a function to set the Discord server ID.
+- Introduced a Dark mode option.
+- Implemented a Database with AI-generated Events.
+- Included a FAQ section addressing common TTX design questions.
+- Added a Platform indicator on the GUI.
+- Expanded the poll options to support more choices.
+- Added "Resume," "Pause," and "Abort" buttons on the GUI.
+- Swapped the functionality of the "Stop" and "Abort" buttons.
+- Included a random data generator button for the MSEL.
+- Added a Database with comprehensive example scenarios.
+- Improved clarity of script execution explanations.
+
+### Fixes
+- Fixed a bug in the log viewer where the "Framework status" text wouldn't display without available logs.
+- Rewrote the log display to address visual issues when selecting or when logs were too long.
+- Resolved an issue where exception messages were not properly displayed on the GUI.
+
 ## [2.1] - 2023-06-02
 Upgrade to version 2.1 of the T3SF framework to benefit from an array of new features, bug fixes, and enhanced stability. This release brings important updates and automation to streamline various processes within the framework.
 

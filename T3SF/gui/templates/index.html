@@ -7,7 +7,6 @@
 		#logs-content {
 			height: 500px;
 			overflow: auto;
-			white-space: pre-wrap;
 			flex-grow: 1;
 		}
 		@media (max-width: 991px) {
@@ -16,33 +15,24 @@
 				width: 100%;
 				max-width: none;
 			}
-
-			#logs-content {
-				margin-top: 0;
-			}
 		}
 
 		.log-type-DEBUG {
-			float: left;
 			color: blue;
 		}
 		.log-type-INFO {
-			float: left;
 			color: green;
 		}
 		.log-type-WARN {
-			float: left;
 			color: #FFC107;
 		}
 		.log-type-ERROR {
-			float: left;
 			color: red;
 		}
 
 		.log-timestamp {
 			font-size: 12px;
 			color: gray;
-			float: right;
 		}
 
 		#logs-level-dropdown {
@@ -51,8 +41,6 @@
 			padding: 4px 8px;
 			font-size: 16px;
 			font-family: Arial, sans-serif;
-			color: #333;
-			background-color: #fff;
 			box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 			transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 		}
@@ -68,7 +56,6 @@
 			font-family: Arial, sans-serif;
 			font-weight: bold;
 			margin-right: 8px;
-			color: #333;
 		}
 
 		#logs-level-form-container {
@@ -149,28 +136,34 @@
 			</form>
 		</div>
 		<div class="col-auto">
-			<button id="start-button" class="btn btn-success">Start</button>
-			<button id="stop-button" class="btn btn-danger">Stop</button>
-			<button id="clear-button" class="btn btn-warning">Clear Logs</button>
+			<button id="start-button" class="btn btn-success d-none"><i class="bi bi-play-fill"></i> Start</button>
+			<button id="pause-button" class="btn btn-secondary d-none ms-1"><i class="bi bi-pause-fill"></i> Pause</button>
+			<button id="resume-button" class="btn btn-secondary d-none ms-1"><i class="bi bi-caret-right-square-fill"></i></i> Resume</button>
+			<button id="stop-button" class="btn btn-danger d-none ms-1"><i class="bi bi-stop-circle"></i> Stop</button>
 		</div>
 	</div>
-	<div class="row">
+	<div class="row mt-2">
 		<div class="col">
 			<div class="bg-light rounded p-3" id="logs-content">
 			</div>
 		</div>
 	</div>
-	<div class="row">
+	<div class="row mt-2">
 		<div class="col">
 			<div class="status-indicator" id="status-indicator">
 				<span class="dot"></span>
 				<h5 id="status-indicator-text"></h5>
 			</div>
 		</div>
+		<div class="col-auto">
+		<button id="abort-button" class="btn btn-danger btn-sm d-none"><i class="bi bi-x-octagon-fill"></i> Abort</button>
+		<button id="clear-button" class="btn btn-warning btn-sm d-none ms-1"><i class="bi bi-trash3"></i> Clear Logs</button>
+	</div>
 	</div>
 </div>
 
 <script>
+
 	// Define the log levels and their corresponding filtering conditions
 	const logLevels = {
 		'DEBUG': 	['DEBUG', 'INFO', 'WARN', 'ERROR'],
@@ -193,6 +186,19 @@
 	eventSource.onerror = function(event) {
 		handle_sse_errors(event);
 	};
+
+	$(document).ready(function () {
+		$.ajax({ 
+			type: "GET",
+			url: "framework-status",
+			success: function(data){
+				changeFrameworkStatus(data.status);
+			},
+			error: function(xhr){
+				b5toast.show("danger", "Error ocurred when checking status", "Please check the logs for more information", 3000);
+			}
+		});
+	});
 
 	// Handle filter dropdown change event	
 	$('#logs-level-dropdown').change(function() {
@@ -222,8 +228,14 @@
 	// Handle Start button click event
 	$('#start-button').click(function() {
 		{%- if platform == "discord" -%}
-		var num = prompt("What's your Discord's server ID? ");
-		var url = "start?server=" + num;
+		var serverId = localStorage.getItem("discordServerId");
+
+		if (!serverId) {
+			// Server ID not stored, trigger modal to save it
+			$('#DiscordServerModal').modal('show');
+			return; // Stop execution until server ID is obtained
+		}
+		var url = "start?server=" + serverId;
 		{%- else -%}
 		var url = "start";
 		{%- endif -%}
@@ -231,14 +243,15 @@
 			type: "GET",
 			url: url,
 			beforeSend: function() {
-				document.getElementById('start-button').disabled = true;
+				b5toast.show("warning", "Starting exercise...", "We are starting the exercise", 3000);
+				changeFrameworkStatus("start");
 			},
 			success: function(data){
-				// alert('started');
+				// b5toast.show("success", "Exercise started", "Lets the game begin!", 5000); // This won't be seen by the user, but the alert will be triggerred when exercise has been completed.
 			},
 			error: function(xhr){
-				// alert('not started');
-				document.getElementById('start-button').disabled = false;
+				// b5toast.show("danger", "Error ocurred", "Please check the logs for more information", 3000);
+				changeFrameworkStatus("stop");
 			}
 		});
 	});
@@ -248,12 +261,73 @@
 		$.ajax({ 
 			type: "GET",
 			url: "stop",
+			beforeSend: function(){
+				b5toast.show("warning", "Stopping exercise...", "We are stopping the exercise", 3000);
+			},
 			success: function(data){
-				eventSource.close();
-				// alert('stopped');
+				b5toast.show("success", "Exercise Stopped", "The exercise has stopped, start again when you are ready!<br><b>Please note that maybe one remaining inject will be sent.</b>", 8000);
+				
+				changeFrameworkStatus("stop");
 			},
 			error: function(xhr){
-				// alert('not stopped');
+				b5toast.show("danger", "Error ocurred", "Please check the logs for more information", 3000);
+			}
+		});
+	});
+
+	// Handle Pause button click event
+	$('#pause-button').click(function() {
+		$.ajax({ 
+			type: "GET",
+			url: "pause",
+			beforeSend: function(){
+				b5toast.show("warning", "Pausing exercise...", "We are pausing the exercise", 3000);
+			},
+			success: function(data){
+				b5toast.show("success", "Exercise paused", "The exercise is now paused, resume it when you are ready!<br><b>Please note that maybe one remaining inject will be sent.</b>", 8000);
+				changeFrameworkStatus("pause");
+			},
+			error: function(xhr){
+				b5toast.show("danger", "Error ocurred", "Please check the logs for more information", 3000);
+			}
+		});
+	});
+
+	// Handle Resume button click event
+	$('#resume-button').click(function() {
+		$.ajax({ 
+			type: "GET",
+			url: "resume",
+			beforeSend: function(){
+				b5toast.show("warning", "Resuming exercise...", "We are resuming the exercise", 3000);
+			},
+			success: function(data){
+				b5toast.show("success", "Exercise resumed", "The exercise has been resumed at the point where it was interrupted.", 5000);
+				
+				changeFrameworkStatus("resume");
+			},
+			error: function(xhr){
+				b5toast.show("danger", "Error ocurred", "Please check the logs for more information", 3000);
+			}
+		});
+	});
+
+	// Handle Abort button click event
+	$('#abort-button').click(function() {
+		$.ajax({ 
+			type: "GET",
+			url: "abort",
+			beforeSend: function(){
+				b5toast.show("warning", "Stopping Framework...", "We are stopping the Framework", 3000);
+			},
+			success: function(data){
+				b5toast.show("success", "Framework Stopped", "Hope to see you again soon!", 5000);
+				// eventSource.close();
+				
+				changeFrameworkStatus("abort");
+			},
+			error: function(xhr){
+				b5toast.show("danger", "Error ocurred", "Please check the logs for more information", 3000);
 			}
 		});
 	});
@@ -295,11 +369,15 @@
 			historic_logs.push(messageId);
 
 			// Format the new log
-			var logString = '<div>\
-			<span class="log-type-'+message.type+'">[' + message.type + '] </span>\
-			<span class="float-start">' + message.content + '</span>\
-			<span class="log-timestamp">' + message.timestamp + '</span>\
-			</div>';
+			var logString = '<div class="row">\
+					<div class="col-11">\
+						<span class="log-type-'+message.type+'">[' + message.type + '] </span>\
+						<span class="message">' + message.content + '</span>\
+					</div>\
+					<div class="col-1 text-end">\
+						<span class="log-timestamp">' + message.timestamp + '</span>\
+					</div>\
+				</div>';
 
 			// Append the new log
 			$('#logs-content').append(logString);
@@ -312,16 +390,12 @@
 
 	function handle_sse_start(event){
 		console.log("Getting server updates");
-		setStatusIndicatorActive(true);
-		document.getElementById('start-button').disabled = false;
-		document.getElementById('stop-button').disabled = false;
+		changeFrameworkStatus("active");
 	};
 
 	function handle_sse_errors(event){
 		console.log('EventSource error:', event);
-		setStatusIndicatorActive(false);
-		document.getElementById('start-button').disabled = true;
-		document.getElementById('stop-button').disabled = true;
+		changeFrameworkStatus("abort");
 
 	};
 
@@ -340,5 +414,126 @@
 		}
 	}
 
+	function changeFrameworkStatus(status){
+
+		const start_btn = document.getElementById('start-button')
+		const pause_btn = document.getElementById('pause-button')
+		const resume_btn = document.getElementById('resume-button')
+		const stop_btn = document.getElementById('stop-button')
+		const abort_btn = document.getElementById('abort-button')
+		const clear_btn = document.getElementById('clear-button')
+
+
+		if (status === "active"){
+			start_btn.disabled = false;
+			pause_btn.disabled = true;
+			resume_btn.disabled = true;
+			stop_btn.disabled = true;
+			abort_btn.disabled = false;
+			clear_btn.disabled = false;
+
+			start_btn.classList.remove('d-none');
+			pause_btn.classList.add('d-none');
+			resume_btn.classList.add('d-none');
+			stop_btn.classList.add('d-none');
+			abort_btn.classList.remove('d-none');
+			clear_btn.classList.remove('d-none');
+
+			setStatusIndicatorActive(true);
+			
+		}
+
+		else if (status === "start"){
+			start_btn.disabled = true;
+			pause_btn.disabled = false;
+			resume_btn.disabled = true;
+			stop_btn.disabled = false;
+			abort_btn.disabled = false;
+			clear_btn.disabled = false;
+
+			start_btn.classList.add('d-none');
+			pause_btn.classList.remove('d-none');
+			resume_btn.classList.add('d-none');
+			stop_btn.classList.remove('d-none');
+			abort_btn.classList.remove('d-none');
+			clear_btn.classList.remove('d-none');
+
+			setStatusIndicatorActive(true);
+		}
+
+		else if (status === "pause"){
+			start_btn.disabled = true;
+			pause_btn.disabled = true;
+			resume_btn.disabled = false;
+			stop_btn.disabled = false;
+			abort_btn.disabled = false;
+			clear_btn.disabled = false;
+
+			start_btn.classList.add('d-none');
+			pause_btn.classList.add('d-none');
+			resume_btn.classList.remove('d-none');
+			stop_btn.classList.remove('d-none');
+			abort_btn.classList.remove('d-none');
+			clear_btn.classList.remove('d-none');
+
+			setStatusIndicatorActive(true);
+		}
+
+		else if (status === "resume"){
+			start_btn.disabled = true;
+			pause_btn.disabled = false;
+			resume_btn.disabled = true;
+			stop_btn.disabled = false;
+			abort_btn.disabled = false;
+			clear_btn.disabled = false;
+
+			start_btn.classList.add('d-none');
+			pause_btn.classList.remove('d-none');
+			resume_btn.classList.add('d-none');
+			stop_btn.classList.remove('d-none');
+			abort_btn.classList.remove('d-none');
+			clear_btn.classList.remove('d-none');
+
+			setStatusIndicatorActive(true);
+		}
+
+		else if (status === "stop"){
+			start_btn.disabled = false;
+			pause_btn.disabled = true;
+			resume_btn.disabled = true;
+			stop_btn.disabled = true;
+			abort_btn.disabled = false;
+			clear_btn.disabled = false;
+
+			start_btn.classList.remove('d-none');
+			pause_btn.classList.add('d-none');
+			resume_btn.classList.add('d-none');
+			stop_btn.classList.add('d-none');
+			abort_btn.classList.remove('d-none');
+			clear_btn.classList.remove('d-none');
+
+			setStatusIndicatorActive(true);
+		}
+
+		else if (status === "abort"){
+			start_btn.disabled = true;
+			pause_btn.disabled = true;
+			resume_btn.disabled = true;
+			stop_btn.disabled = true;
+			abort_btn.disabled = true;
+			clear_btn.disabled = true;
+
+			start_btn.classList.remove('d-none');
+			pause_btn.classList.add('d-none');
+			resume_btn.classList.add('d-none');
+			stop_btn.classList.add('d-none');
+			abort_btn.classList.remove('d-none');
+			clear_btn.classList.remove('d-none');
+
+			setStatusIndicatorActive(false);
+		}
+
+
+	}
 </script>
 {% endblock %}

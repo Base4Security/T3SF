@@ -1,14 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>{% block title %} {% endblock %} | T3SF - GUI</title>
-	<link rel="icon" type="image/x-icon" href="https://user-images.githubusercontent.com/103124157/164258966-7a049d6c-4012-49ca-8f7d-2bb814c24009.png">
+	<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='imgs/icon.png') }}">
 
-	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
 
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
 	
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
 
 	<style type="text/css">
@@ -17,95 +21,330 @@
 				line-height:60px;
 			}
 		}
+		body {
+			padding-bottom: 100px;
+		}
+
+		.bg-darkmode{
+			background-color: #1b1e1f;
+		}
+
 	</style>
 
 	{% block extra_head %} {% endblock %}
 
-<body>
-	<nav class="navbar navbar-expand-lg navbar-light p-3" id="headerNav">
-	  <div class="container-fluid">
-		<a class="navbar-brand d-block d-lg-none" href="#">
-		  <img src="https://user-images.githubusercontent.com/103124157/164258966-7a049d6c-4012-49ca-8f7d-2bb814c24009.png" height="80" />
-		</a>
-		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-		  <span class="navbar-toggler-icon"></span>
-		</button>
-	
-		<div class=" collapse navbar-collapse" id="navbarNavDropdown">
-		  <ul class="navbar-nav mx-auto ">
-			<li class="nav-item">
-			  <a class="nav-link mx-2" href="https://github.com/Base4Security/T3SF">Github Project</a>
-			</li>
-			<li class="nav-item">
-			  <a class="nav-link mx-2 {% if active_page == 'logs_viewer' %}active{% endif %}"  href="{{ url_for('t3sf.index') }}">Logs Viewer</a>
-			</li>
-			<li class="nav-item d-none d-lg-block">
-			  <a class="nav-link mx-2" href="#">
-				<img src="https://user-images.githubusercontent.com/103124157/164258966-7a049d6c-4012-49ca-8f7d-2bb814c24009.png" height="80" />
-			  </a>
-			</li>
-			<li class="nav-item">
-			  <a class="nav-link mx-2 {% if active_page == 'msel_viewer' %}active{% endif %}" href="{{ url_for('t3sf.msel_viewer') }}">MSEL Viewer</a>
-			</li>
-			<li class="nav-item">
-			  <a class="nav-link mx-2 {% if active_page == 'env_creation' %}active{% endif %}" href="{{ url_for('t3sf.env_creation') }}">Create environment</a>
-			</li>
-			
-		  </ul>
-		</div>
-	  </div>
-	</nav>
-	<!-- Toast Placeholder -->
-	<div class="position-fixed top-0 end-0 p-3" id="toast-container"></div>
-	<footer class="footer fixed-bottom bg-light">
-	  <div class="container-fluid">
-	    <div class="row">
-	      <div class="col text-center text-muted">
-	        <p>Version 2.1 | Found a bug? Let us know! <a href="https://github.com/Base4Security/T3SF/issues/new/choose">Submit a bug report</a>.</p>
-	      </div>
-	    </div>
-	  </div>
-	</footer>
-	<script type="text/javascript">
-		const b5toastContainerElement = document.getElementById("toast-container");
+	<body>
+		<nav class="navbar navbar-expand-lg navbar-light bg-white p-3 sticky-top" id="headerNav">
+			<div class="container-fluid">
+				<a class="navbar-brand d-block d-lg-none" href="#">
+					<img src="{{ url_for('static', filename='imgs/logo-light.png') }}" id="logo-image" height="80" />
+				</a>
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="collapse navbar-collapse" id="navbarNavDropdown">
+					<ul class="nav nav-tabs mx-auto">
+						<li class="nav-item">
+							<a class="nav-link mx-2" href="https://github.com/Base4Security/T3SF">Github Project</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link mx-2 {% if active_page == 'logs_viewer' %}active{% endif %}" href="{{ url_for('t3sf.index') }}">Logs Viewer</a>
+						</li>
+						<li class="nav-item d-xs-none">
+							<a class="mx-4" href="#">
+								<img src="{{ url_for('static', filename='imgs/logo-light.png') }}" id="logo-image" alt="T3SF" height="70" />
+							</a>				
+						</li>
+						<li class="nav-item">
+							<a class="nav-link mx-2 {% if active_page == 'msel_playground' %}active{% endif %}" href="{{ url_for('t3sf.msel_playground') }}">MSEL Playground</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link mx-2 {% if active_page == 'env_creation' %}active{% endif %}" href="{{ url_for('t3sf.env_creation') }}">Create environment</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
 
-		const b5toast = {
-			delayInMilliseconds: 5000,
-			htmlToElement: function (html) {
-				const template = document.createElement("template");
-				html = html.trim();
-				template.innerHTML = html;
-				return template.content.firstChild;
-			},
-			show: function (color, title, message, delay) {
-				title = title ? title : "";
-				if (color == "warning") {
-					txt_color = "black";
-				}
-				else{
-					txt_color = "white";
-				}
-				const html = `
-				<div class="toast align-items-center mt-1 text-${txt_color} bg-${color} border-0" role="alert" aria-live="assertive" aria-atomic="true">
-					<div class="d-flex">
-						<div class="toast-body">
-							<b>${title}</b>
-							<div><i>${message}</i></div>
-						</div>
-						<button type="button" class="btn-close btn-close-${txt_color} me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+		{% block content %} {% endblock %}
+		<!-- Toast Placeholder -->
+		<div class="position-fixed top-0 end-0 p-3" style="z-index: 1050;" id="toast-container"></div>
+		<!-- / Toast Placeholder -->
+
+		<!-- Modal for Server ID -->
+		<div class="modal fade" id="DiscordServerModal" tabindex="-1" aria-labelledby="DiscordServerModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="DiscordServerModalLabel">Set Discord Server ID</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 					</div>
-				</div>`;
-				const toastElement = b5toast.htmlToElement(html);
-				b5toastContainerElement.appendChild(toastElement);
-				const toast = new bootstrap.Toast(toastElement, {
-					delay: delay?delay:b5toast.delayInMilliseconds,
-					animation: true
-				});
-				toast.show();
-				setTimeout(() => toastElement.remove(), delay?delay:b5toast.delayInMilliseconds + 3000); // let a certain margin to allow the "hiding toast animation"
-			},
-		};
+					<div class="modal-body">
+						<form id="discordForm">
+							<div class="mb-3">
+								<label for="serverId" class="form-label">Server ID:</label>
+								<input type="text" class="form-control" id="serverId" required pattern="\d{18}">
+								<small class="form-text text-muted d-block">Don't know how to get it? <a href="https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID" target="_blank">Go here!</a></small>
+								<small id="validationMessage" class="form-text text-danger d-block"></small>
+
+							</div>
+						</form>
+					</div>
+					<div class="modal-footer d-flex justify-content-between">
+						<button type="button" class="btn btn-danger" onclick="removeServerId()">Remove</button>
+						<div>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-primary" onclick="saveServerId()">Save</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- / Modal for Server ID -->
+
+		<!-- FAQ Modal -->
+		<div class="modal modal-lg fade" id="faqModal" tabindex="-1" aria-labelledby="faqModalLabel" aria-hidden="true">
+		  <div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+			  <div class="modal-header">
+				<h5 class="modal-title" id="faqModalLabel">Design Frequently Asked Questions</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			  </div>
+			  <div class="modal-body">
+				<!-- FAQ Accordion -->
+				<div class="accordion" id="faqAccordion">
+					<div class="accordion-item">
+						<h2 class="accordion-header">
+							<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqHeading1" aria-expanded="true" aria-controls="faqHeading1">
+								What are some objectives of a TTX?
+							</button>
+						</h2>
+						<div id="faqHeading1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+							<div class="accordion-body">
+								<ul>
+									<li><strong>Experience</strong> the evaluation, decision-making, participation, and communication in a security crisis.</li>
+									<li><strong>Identify</strong> gaps between formal procedures and actual behavior.</li>
+									<li><strong>Understand</strong> the difficulties of managing the operational issues of an incident.</li>
+									<li><strong>Recognize</strong> the priorities and necessary actions to improve response capabilities.</li>
+									<li><strong>Improve</strong> decision-making and execution of appropriate actions to restore situations.</li>
+									<li><strong>Exercise</strong> communication and coordination processes during incidents.</li>
+									<li><strong>Determine</strong> the effectiveness of manuals to address detection, response, and recovery.</li>
+								</ul>
+								<p>It is also possible to establish other objectives aligned with the needs.</p>
+								<p>These objectives will guide all the definitions made during the design.</p>
+							</div>
+						</div>
+					</div>
+
+					<div class="accordion-item">
+						<h2 class="accordion-header">
+							<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqHeading2" aria-expanded="true" aria-controls="faqHeading2">
+								What types of participants are there in a TTX?
+							</button>
+						</h2>
+						<div id="faqHeading2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+							<div class="accordion-body">
+								Players
+								<ul>
+									<li><strong>Perform</strong> regular functions during the exercise.</li>
+									<li><strong>Discuss</strong> or <strong>initiate</strong> actions in response to the scenario.</li>
+								</ul>
+								Observers
+								<ul>
+									<li><strong>Do not directly participate</strong> in the exercise.</li>
+									<li>Can only <strong>ask questions at the end.</strong></li>
+								</ul>
+								Coordinators
+								<ul>
+									<li><strong>Lead</strong> and <strong>facilitate</strong> the operation of the exercise.</li>
+									<li><strong>Take notes</strong> for the preparation of the subsequent report.</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+
+					<div class="accordion-item">
+						<h2 class="accordion-header">
+							<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqHeading3" aria-expanded="true" aria-controls="faqHeading3">
+								What is the primary threat?
+							</button>
+						</h2>
+						<div id="faqHeading3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+							<div class="accordion-body">
+								<p>This definition may include one or more types of threats in relation to the objectives of the exercise. This may be defined by risk management, or cyber threat intelligence reports (internal, external, or aligned with the sector to which the organization belongs).</p>
+								<p>Thetype of threats will serve as the primary guide for the various tactics, techniques, and procedures selected in the next stage. The most common types are: <u>Ransomware, Denial of Service, Insider Attackers, Information Leakage, Social Engineering, Supply Chain Attack, and Physical Disruption.</u></p>
+							</div>
+						</div>
+					</div>
+
+					<div class="accordion-item">
+						<h2 class="accordion-header">
+							<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqHeading4" aria-expanded="true" aria-controls="faqHeading4">
+								Is your organization subject to any regulations related to TTX?
+							</button>
+						</h2>
+						<div id="faqHeading4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+							<div class="accordion-body">
+								<p>Consider <i>regulations</i>, <i>standards</i> or <i>frameworks</i> applicable to the organization that may contain application requirements related to the exercise.</p>
+								<p>These may add value to the definitions made during design.</p>
+							</div>
+						</div>
+					</div>
+
+					<div class="accordion-item">
+						<h2 class="accordion-header">
+							<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqHeading5" aria-expanded="true" aria-controls="faqHeading5">
+								Which assets will be affected by the simulated incident?
+							</button>
+						</h2>
+						<div id="faqHeading5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+							<div class="accordion-body">
+								<p>Define which assets will be involved in the scenario, and the business processes they support will be key to design a scenario aligned to the objectives.</p>
+								<p>Among others we can find:</p>
+								<ul>
+									<li><u>Services, applications, servers, data centers</u> that support the asset on which you want to simulate the incident.</li>
+									<li>Consider <u>people, departments, suppliers, and other entities</u> of the organization's ecosystem that are involved in some part of the operation that will be affected.</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+
+					<div class="accordion-item">
+						<h2 class="accordion-header">
+							<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqHeading6" aria-expanded="true" aria-controls="faqHeading6">
+								What are the areas involved in the scenario?
+							</button>
+						</h2>
+						<div id="faqHeading6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+							<div class="accordion-body">
+								<p>This definition will help us to generate injects oriented to the different participants according to their roles and responsibilities.</p>
+							</div>
+						</div>
+					</div>
+
+					<div class="accordion-item">
+						<h2 class="accordion-header">
+							<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqHeading7" aria-expanded="true" aria-controls="faqHeading7">
+								How will the participants interact with each other?
+							</button>
+						</h2>
+						<div id="faqHeading7" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+							<div class="accordion-body">
+								<p>Completely through messaging channels, with scheduled meeting intervals or constantly grouped by the different areas can be some of the interaction modalities.</p>
+								<p>Remember that one of the main objectives of TTX is about <strong>communication</strong>. Consider these channels from the design of the injects.</p>
+							</div>
+						</div>
+					</div>
+
+					<div class="accordion-item">
+						<h2 class="accordion-header">
+							<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqHeading8" aria-expanded="true" aria-controls="faqHeading8">
+								Does the design contain technical elements?
+							</button>
+						</h2>
+						<div id="faqHeading8" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+							<div class="accordion-body">
+								<p>Based on the <strong>objectives</strong> and <strong>scope</strong> of the exercise, we can determine if the exercise will contain <strong>detailed technical elements</strong> or if <strong>it is not necessary.</strong></p>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- / FAQ Accordion -->
+			  </div>
+			  <div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+			  </div>
+			</div>
+		  </div>
+		</div>
+
+		<!-- / FAQ Modal -->
+
+		<footer class="footer fixed-bottom bg-light">
+			<div class="container-fluid">
+				<div class="row align-items-center justify-content-between">
+					<div class="col-auto">
+						<div class="dropdown dropup d-inline-block">
+							<button class="btn btn-sm text-muted" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+								<i class="bi bi-gear-fill"></i>
+							</button>
+							<ul class="dropdown-menu" aria-labelledby="settingsDropdown">
+								<li><span class="dropdown-item-text text-nowrap">Platform: {{ platform | default("Not platform selected") | capitalize }}</span></li>
+								<li><hr class="dropdown-divider"></li>
+								{%- if platform.lower() == "discord" -%}
+								<li><a class="dropdown-item" href="#" type="button" id="DiscordServerModalButton" data-bs-toggle="modal" data-bs-target="#DiscordServerModal">Set Discord server's ID</a></li>
+								{%- endif -%}
+								<li><a class="dropdown-item" href="#" type="button" data-bs-toggle="modal" data-bs-target="#faqModal">Design FAQ</a></li>
+								<li><hr class="dropdown-divider"></li>
+								<li>
+									<button id="theme-toggle" class="btn btn-primary dropdown-item">
+										<span id="theme-icon" class="bi bi-moon-fill"></span>
+										<span id="theme-text">Dark mode</span>
+									</button>
+								</li>
+							</ul>
+						</div>
+					</div>
+					<div class="col text-center text-muted">
+						<p class="mb-0">Version 2.5 | Found a bug? Let us know! <a href="https://github.com/Base4Security/T3SF/issues/new/choose">Submit a bug report</a>.</p>
+					</div>
+				</div>
+			</div>
+		</footer>
+
+	<script>
+		function saveServerId() {
+			var serverIdInput = document.getElementById("serverId");
+			var serverId = serverIdInput.value;
+			var validationMessage = document.getElementById("validationMessage");
+
+			// Define the regex pattern for server ID validation
+			var serverIdPattern = /^\d{18,19}$/;
+
+			if (serverIdPattern.test(serverId)) {
+				localStorage.setItem("discordServerId", serverId);
+				validationMessage.innerHTML = "";
+				$('#DiscordServerModal').modal('hide');
+				b5toast.show("success", "Discord's server ID stored!", "We stored the server ID", 3000);
+			} else {
+				validationMessage.innerHTML = "Invalid server ID. Please enter a valid ID.";
+			}
+		}
+
+		function updateServerId() {
+			var validationMessage = document.getElementById("validationMessage").innerHTML = "";
+			var serverIdInput = document.getElementById("serverId");
+			var storedServerId = localStorage.getItem("discordServerId");
+
+			if (storedServerId) {
+				serverIdInput.value = storedServerId;
+			} else {
+				serverIdInput.value = '';
+			}
+		}
+
+		function removeServerId() {
+			localStorage.removeItem("discordServerId");
+			var serverIdInput = document.getElementById("serverId");
+			serverIdInput.value = '';
+			$('#DiscordServerModal').modal('hide');
+			b5toast.show("success", "Discord's server ID removed!", "We removed the stored server ID", 3000);
+		}
+
+		// Update the server ID when the modal is shown
+		document.getElementById("DiscordServerModalButton")?.addEventListener("click", function() {
+			updateServerId();
+		});
+
+		// Update the server ID when the stored ID changes in the local storage
+		window.addEventListener("storage", function(event) {
+			if (event.key === "discordServerId") {
+				updateServerId();
+			}
+		});
 	</script>
-{% block content %} {% endblock %}
+	<script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap_toasts.js') }}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/theme_switcher.js') }}"></script>
+
 </body>
 </html>

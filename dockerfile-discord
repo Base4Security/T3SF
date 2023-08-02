@@ -15,6 +15,9 @@ COPY ./docker/main-discord.py main.py
 # Copy the framework to the container
 COPY ./T3SF/ T3SF/
 
+# Set the MSEL default location
+ENV MSEL_PATH=/app/MSEL.json
+
 STOPSIGNAL SIGINT
 
 # Run the main.py script

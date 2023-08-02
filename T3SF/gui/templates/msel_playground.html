@@ -1,0 +1,895 @@
+{% extends 'base.html' %}
+
+{% block title %} MSEL Playground {% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/file-saver/dist/FileSaver.min.js"></script>
+
+<script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='js/vanilla-jsoneditor/themes/jse-theme-dark.css') }}">
+
+<style type="text/css">
+	.border-orange { 
+		/*	For the input file form	*/
+		border-color: rgba(253,126,20,1);
+	}
+	.form-control:focus {
+		/*	For the input file form	*/
+		color: var(--bs-orange);
+		background-color: #fd7e141c;
+		border-color: var(--bs-orange);
+		outline: 0;
+		box-shadow: 0 0 0 0.25rem rgba(253,126,20,.25);
+	}
+
+	#json-editor-container{
+		--jse-theme-color: var(--bs-orange);
+		--jse-theme-color-highlight: #fd7e14d6;
+		--jse-button-primary-background: var(--bs-orange);
+		--jse-button-primary-background-highlight: #fd7e14d6;
+		--jse-value-color-number: #3883fa;
+		--jse-value-color-string: #008000;
+		--jse-value-color-null: #dc3545;
+		--jse-value-color-url: #3f51b5;
+	}
+
+	.dataTables_scroll{
+		position:relative
+	}
+	.dataTables_scrollHead{
+		margin-bottom:40px;
+	}
+	.dataTables_scrollFoot{
+		position:absolute;
+		top:38px
+	}
+	#injectsTable th:nth-child(4),
+	#injectsTable td:nth-child(4) {
+		width: 50%; 
+	}
+	#mselsTable th:nth-child(4),
+	#mselsTable td:nth-child(4) {
+		width: 50%; 
+	}
+
+	.pulse-animation {
+		animation: pulse 1s;
+		box-shadow: 0 0 0 2em transparent;
+	}
+	@keyframes pulse {
+		0% { box-shadow: 0 0 0 0 #28a745;}
+	}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container" id="content">
+	<div class="row align-items-center">
+		<div class="col">
+			<span class="d-inline-block" data-bs-placement="bottom" data-bs-toggle="tooltip" title="Edit or simply view a MSEL from a JSON or Excel file. Also save your modifications directly from here!">
+				<h3>MSEL Playground</h3>
+			</span>
+		</div>
+	</div>
+	<div class="row mt-2">
+		<div class="col">
+			<div class="d-flex justify-content-start">
+				<button type="button" class="btn btn-primary me-1" data-bs-toggle="modal" data-bs-target="#eventsDBModal">Events Database</button>
+				<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#mselsModal">MSELs Database</button>
+			</div>
+		</div>
+		<div class="col-4">
+			<div class="d-flex justify-content-end">
+				<div class="input-group">
+					<input id="load-file" accept="application/json, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="form-control border-orange" type="file">
+					<button id="saveDocument" class="btn btn-outline-success d-none" type="button">Save</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col">
+			<div class="rounded mt-3 jse-theme-light d-none" id="json-editor-container"></div>
+		</div>
+	</div>
+</div>
+
+<!-- Events database modal -->
+<div class="modal modal-xl fade" id="eventsDBModal" tabindex="-1" aria-labelledby="eventsDBModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header bg-light">
+				<h1 class="modal-title fs-5" id="eventsDBModalLabel">Events Database</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<div class="row d-flex justify-content-center align-items-center">
+					<div class="col-4">
+						<div class="form-floating">
+							<select class="form-select" id="phaseDropdown" aria-label="Floating label select example">
+								<option value="" selected>All</option>
+							</select>
+							<label for="phaseDropdown">Exercise Phase:</label>
+						</div>
+					</div>
+					<div class="col-4">
+						<div class="form-floating">
+							<select class="form-select" id="sectorDropdown" aria-label="Floating label select example">
+								<option value="" selected>All</option>
+							</select>
+							<label for="sectorDropdown">Company Sector:</label>
+						</div>
+					</div>
+				</div>
+				<div class="row mt-2">
+					<div class="col">
+						<table id="injectsTable" class="display" style="width:100%">
+							<thead>
+								<tr>
+									<th></th>
+									<!-- <th>#</th> -->
+									<th>Related Threat</th>
+									<th>Receptor</th>
+									<th>Event</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer bg-light">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				<button type="button" id="createMSEL" class="btn btn-success" data-bs-dismiss="modal">Save changes</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- / Events database modal -->
+
+<!-- MSELs database modal -->
+<div class="modal modal-xl fade" id="mselsModal" tabindex="-1" aria-labelledby="mselsModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header bg-light">
+				<h1 class="modal-title fs-5" id="mselsModalLabel">MSELs Database</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<div class="row mt-2">
+					<div class="col">
+						<table id="mselsTable" class="display" style="width:100%">
+							<thead>
+								<tr>
+									<th></th>
+									<!-- <th>#</th> -->
+									<th>Topic</th>
+									<th>Sector</th>
+									<th>Description</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer bg-light">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				<button type="button" id="createMSEL" class="btn btn-success" data-bs-dismiss="modal">Save changes</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- / MSELs database modal -->
+
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+
+<script type="module">
+	import { JSONEditor } from "{{ url_for('static', filename='js/vanilla-jsoneditor/index.js') }}";
+	import copyToClipboard from "{{ url_for('static', filename='js/copy.js') }}";
+
+	// Define global variables
+	let original_events = [];
+	var selectedInjects = []; // Array to store selected inject IDs
+
+	// Enable tooltips
+	var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+	var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+		return new bootstrap.Tooltip(tooltipTriggerEl)
+	})
+
+	const container = document.getElementById('json-editor-container');
+
+	async function handleCopy() {
+		console.log('Custom copy button clicked');
+
+		const contents = content.text !== undefined ? content.text : JSON.stringify(editor.get().json, null, 2);
+
+		await copyToClipboard(contents);
+
+		b5toast.show("success", "Copied to clipboard!", "The MSEL was successfully copied to your clipboard.", 3000);
+	}
+
+	async function handleGenerate() {
+		console.log('Generating simulation data');
+
+		const contents = content.text !== undefined ? content.text : editor.get().json;
+
+		generateRandomData(contents)
+
+		b5toast.show("success", "Random data added!", "The MSEL has now some <u><b>testing data</b></u>.", 3000);
+	}
+
+	function generateRandomData(jsonData){
+		let counter = 1;
+		let baseRealTime = new Date();
+		baseRealTime.setHours(13, 0, 0); // Set initial "Real Time" to 01:00 PM
+
+		let baseDate = new Date();
+		baseDate.setHours(10, 0, 0); // Set initial "Date" to 10:00 AM
+
+		jsonData.forEach((obj, index) => {
+			// Increment "#" value for each step of MSEL
+			if (!obj["#"]) {
+				obj["#"] = counter;
+			}
+			else {
+				counter = parseInt(obj["#"], 10);
+				obj["#"] = counter;
+			}
+
+			// Set "Real Time" with incremental difference between 0 and 5 minutes
+			const minuteDifference = Math.floor(Math.random() * 5); // Incremental difference
+			const newRealTime = new Date(baseRealTime.getTime() + minuteDifference * 60000);
+			const formattedRealTime = newRealTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+			avoidOverriding(obj, "Real Time", formattedRealTime);
+
+
+		  	// Set "Date" with incremental difference
+			const newDate = new Date(baseDate.getTime() + index * 20 * 60000);
+			const formattedDate = `${newDate.toLocaleDateString("en-US", { weekday: "long" })} ${newDate.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`;
+			avoidOverriding(obj, "Date", formattedDate);
+
+			// Set "From" as a random name or area
+			const names = [ "John Smith", "Jane Doe", "Sarah Johnson", "David Thompson", "Brian Davis", "CyberSOC", "Security Operations", "Network Security", "Incident Response", "Threat Intelligence", "Jessica Roberts", "Emily Wilson", "Michael Brown", "Lauren Miller", "Daniel Lee", "Vulnerability Management", "Security Engineering", "Identity and Access Management", "Cloud Security", "Data Privacy"];
+
+			const randomIndex = Math.floor(Math.random() * names.length);
+			avoidOverriding(obj, "From", names[randomIndex]);
+
+			// Update baseRealTime and baseDate for the next iteration
+			baseRealTime = newRealTime;
+			baseDate = newDate;
+			counter++;
+		});
+		editor.set({text:undefined,json:jsonData});
+	}
+
+	function avoidOverriding(obj, key, new_value){
+		if (!obj[key]){
+			obj[key] = new_value;
+			return true;
+		}
+		return false;
+	}
+
+	const schema = {
+		title: 'Injects',
+		description: 'Object containing all the inject details',
+		type: 'array',
+		properties: {
+			'#': {
+				title: 'Inject Number',
+				description: 'The inject number.',
+				examples: [1, 32],
+				minimum: 1,
+				type: 'integer'
+			},
+			'Real Time': {
+				title: 'Real Time',
+				description: 'The real time when the inject should be sent.',
+				examples: ['07:31 PM'],
+				type: 'string'
+			},
+			'Date': {
+				title: 'Date',
+				description: 'The simulated time that the inject should have.',
+				examples: ['Monday 10:00 AM'],
+				type: 'string'
+			},
+			'Subject': {
+				title: 'Subject',
+				description: 'The subject of the inject.',
+				examples: ['Anomalous Files Detected', 'SOC - Internal Phishing Alert'],
+				type: 'string'
+			},
+			'From': {
+				title: 'The sender',
+				description: "The sender's name.",
+				examples: ['SOC - BASE4', 'Amazon Web Services'],
+				type: 'string'
+			},
+			'Player': {
+				title: 'The player/area',
+				description: 'This is the real player/area.',
+				examples: ['Legal', 'Infosec', 'Pr/Comm'],
+				type: 'string'
+			},
+			'Script': {
+				title: 'Script',
+				description: "This is the inject's body.",
+				examples: ['Team, we received a ransom request. What should we do?', 'We detected some anomalous files in your S3 Bucket.'],
+				type: 'string'
+			},
+			'Picture Name': {
+				title: 'Picture Name',
+				description: 'The name of the picture file.',
+				examples: ['Base_4_SOC.jpg', 'S3_Bucket.png'],
+				type: 'string'
+			},
+			'Photo': {
+				title: 'Photo URL',
+				description: 'The URL of the picture.',
+				examples: ['https://img2.helpnetsecurity.com/posts2018/aws-s3-buckets-public.jpg'],
+				type: 'string'
+			},
+			'Profile': {
+				title: 'Profile picture',
+				description: 'The profile picture.',
+				examples: ['https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Amazon_Web_Services_Logo.svg/1024px-Amazon_Web_Services_Logo.svg.png'],
+				type: 'string'
+			},
+			'Poll': {
+				title: 'Poll options',
+				description: 'The options of a poll.',
+				examples: ['MIT | GPL', 'Pay the ransom | Don’t pay it'],
+				type: 'string'
+			}
+		},
+		required: ['#', 'Real Time', 'Date', 'Subject', 'From', 'Player', 'Script']
+	};
+
+	const options = {
+		schema: schema,
+		mode: 'table',
+		templates: [
+		{
+			text: 'Inject',
+			title: 'Insert a new inject',
+			field: 'InjectTemplate',
+			value: {
+				'#': '',
+				'Real Time': '',
+				'Player': '',
+				'Date': '',
+				'Subject': '',
+				'From': '',
+				'Script': '',
+				'Photo': '',
+				'Picture Name': '',
+				'Profile': '',
+				'Poll': ''
+			}
+		}
+		],
+		onRenderMenu: function (items, context) {
+		// Remove unwanted menu items by filtering the 'items' array
+			items = items.filter(function (item) {
+		  // Specify the menu items we want to keep
+				const disabledItems = ["jse-transform"];
+				return !disabledItems.includes(item.className);
+			});
+		// Check if items array is empty
+			if (items.length === 0) {
+		  // Add a custom menu item or text when there are no items
+				items.push({
+					type: 'button',
+					text: 'Disabled',
+					description: 'We deactivate non-useful functions.',
+					className: 'disabled-class',
+			disabled: true // Disable the menu item
+		});
+			}
+
+			items.push({
+				onClick: handleCopy,
+				icon: {"prefix": "fal",
+				"iconName": "copy",
+				"icon": [512,512,[8634,"copy","copy","copy","copy"],"f0e2","M272 0H396.1c12.7 0 24.9 5.1 33.9 14.1l67.9 67.9c9 9 14.1 21.2 14.1 33.9V336c0 26.5-21.5 48-48 48H272c-26.5 0-48-21.5-48-48V48c0-26.5 21.5-48 48-48zM48 128H192v64H64V448H256V416h64v48c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V176c0-26.5 21.5-48 48-48z"]
+			},
+			title: 'Copy document to clipboard',
+			className: 'custom-copy-button'
+		},
+		{
+			onClick: handleGenerate,
+			icon: {"prefix": "fal",
+			"iconName": "screwdriver-wrench",
+			"icon": [512,512,[8634,"screwdriver-wrench","screwdriver-wrench","screwdriver-wrench","screwdriver-wrench"],"f0e2","M78.6 5C69.1-2.4 55.6-1.5 47 7L7 47c-8.5 8.5-9.4 22-2.1 31.6l80 104c4.5 5.9 11.6 9.4 19 9.4h54.1l109 109c-14.7 29-10 65.4 14.3 89.6l112 112c12.5 12.5 32.8 12.5 45.3 0l64-64c12.5-12.5 12.5-32.8 0-45.3l-112-112c-24.2-24.2-60.6-29-89.6-14.3l-109-109V104c0-7.5-3.5-14.5-9.4-19L78.6 5zM19.9 396.1C7.2 408.8 0 426.1 0 444.1C0 481.6 30.4 512 67.9 512c18 0 35.3-7.2 48-19.9L233.7 374.3c-7.8-20.9-9-43.6-3.6-65.1l-61.7-61.7L19.9 396.1zM512 144c0-10.5-1.1-20.7-3.2-30.5c-2.4-11.2-16.1-14.1-24.2-6l-63.9 63.9c-3 3-7.1 4.7-11.3 4.7H352c-8.8 0-16-7.2-16-16V102.6c0-4.2 1.7-8.3 4.7-11.3l63.9-63.9c8.1-8.1 5.2-21.8-6-24.2C388.7 1.1 378.5 0 368 0C288.5 0 224 64.5 224 144l0 .8 85.3 85.3c36-9.1 75.8 .5 104 28.7L429 274.5c49-23 83-72.8 83-130.5zM56 432a24 24 0 1 1 48 0 24 24 0 1 1 -48 0z"]
+		},
+		title: 'Generate random data',
+		className: 'custom-gen-data-button'
+	});
+
+			return items;
+		},
+	};
+
+	// Create the editor
+	let editor = new JSONEditor({
+		target: document.getElementById('json-editor-container'),
+		props: options
+	})
+
+	// Listener for file upload
+	document.getElementById("load-file").addEventListener("change", function (event) {
+		const file = event.target.files[0];
+		processFile(file);
+	});
+
+	// Orchestrator for different types of files
+	function processFile(file) {
+		const fileType = getFileType(file.name);
+
+		if (fileType === 'json') {
+		// Process JSON file
+			processJsonFile(file);
+		} else if (fileType === 'excel') {
+		// Process Excel file
+			processExcelFile(file);
+		} else {
+		// Throw error for unsupported file type
+			throw new Error('Unsupported file type. Only JSON and Excel files are supported.');
+		}
+	}
+
+	// Check for file type
+	function getFileType(fileName) {
+		const extension = fileName.split('.').pop().toLowerCase();
+		if (extension === 'json') {
+			return 'json';
+		} else if (['xls', 'xlsx'].includes(extension)) {
+			return 'excel';
+		} else {
+			return 'unsupported';
+		}
+	}
+
+	// Process the JSON file
+	function processJsonFile(file) {
+		console.log("File loaded");
+		const reader = new FileReader();
+		reader.readAsText(file, "UTF-8");
+		reader.onload = function (evt) {
+			original_events = JSON.parse(evt.target.result);
+			var jsonData = JSON.parse(evt.target.result);
+			
+			// Check if the JSON has already some injects
+			var current_json = editor.get().json !== undefined ? editor.get().json : [];
+			var merged_json = current_json.concat(jsonData);
+			
+			editor.set({text:undefined,json:merged_json});
+			$("#json-editor-container").removeClass("d-none");
+			$("#saveDocument").removeClass("d-none");
+
+		}
+		reader.onerror = function (evt) {
+			alert("Error loading the file");
+		}
+	};
+
+	// Load Excel file and format it to JSON
+	function processExcelFile(file) {
+		console.log('File loaded');
+		convertExcelToJson(file)
+		.then((jsonData) => {
+			original_events = jsonData;
+			
+			// Check if the JSON has already some injects
+			var current_json = editor.get().json !== undefined ? editor.get().json : [];
+			var merged_json = current_json.concat(jsonData);
+			
+			editor.set({text:undefined,json:merged_json});
+			$("#json-editor-container").removeClass("d-none");
+			$("#saveDocument").removeClass("d-none");
+		})
+		.catch((error) => {
+			console.error(error);
+		});
+	};
+
+	// Function to save the modified file into JSON format
+	document.getElementById('saveDocument').onclick = function () {
+		// Save Dialog
+		let fname = window.prompt("Save as...")
+
+		// Check json extension in file name
+		if (fname.indexOf(".") === -1) {
+			fname = fname + ".json"
+		} else {
+			if (fname.split('.').pop().toLowerCase() === "json") {
+			// Nothing to do
+			} else {
+				fname = fname.split('.')[0] + ".json"
+			}
+		}
+		// const blob = new Blob([editor.getText()], {type: 'application/json;charset=utf-8'}) // Minified
+		const blob = new Blob([JSON.stringify(editor.get().json, null, 2)], {type: 'application/json;charset=utf-8'}) // Beautified
+		saveAs(blob, fname)
+	}
+
+	// Function to convert Excel file to JSON
+	function convertExcelToJson(file) {
+		return new Promise((resolve, reject) => {
+			const reader = new FileReader();
+			reader.onload = function (e) {
+				const data = new Uint8Array(e.target.result);
+				const workbook = XLSX.read(data, { type: 'array' });
+				const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+				const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+			header: 1, // Use the first row as header
+			raw: true, // Preserve raw cell values
+			defval: '', // Set empty cells to an empty string
+		});
+				const formattedData = formatJsonData(jsonData);
+				resolve(formattedData);
+			};
+			reader.onerror = function (e) {
+				reject(new Error('Error reading the file'));
+			};
+			reader.readAsArrayBuffer(file);
+		});
+	}
+
+	// Function to format the data exported from the Excel to JSON
+	function formatJsonData(data) {
+		const headerRow = data[0];
+		const formattedData = [];
+		for (let i = 1; i < data.length; i++) {
+			const row = data[i];
+			const formattedRow = {};
+			for (let j = 0; j < headerRow.length; j++) {
+				const key = headerRow[j];
+				let value = row[j];
+				if (key === 'Real Time') {
+					value = formatTime(value);
+				}
+				formattedRow[key] = value;
+			}
+			formattedData.push(formattedRow);
+		}
+		return formattedData;
+	}
+
+	// Format the time to keep it like on the MSEL
+	function formatTime(timeValue) {
+		const time = parseFloat(timeValue);
+		const hours = Math.floor(time * 24);
+		const minutes = Math.floor((time * 24 * 60) % 60);
+		const period = hours >= 12 ? 'PM' : 'AM';
+		const formattedTime = `${padZero(hours % 12)}:${padZero(minutes)} ${period}`;
+		return formattedTime;
+	}
+
+	// Add zeros to the date when < 10
+	function padZero(value) {
+		return value.toString().padStart(2, '0');
+	}
+
+	// Datatables
+	$(document).ready(function () {
+		// Add a change event handler to the filter dropdown
+		$('#sectorDropdown').on('change', function () {
+			// Redraw the DataTables table when the filter value changes
+			$('#injectsTable').DataTable().draw();
+		});
+		$('#phaseDropdown').on('change', function () {
+			// Redraw the DataTables table when the filter value changes
+			$('#injectsTable').DataTable().draw();
+		});
+
+		var table = $('#injectsTable').DataTable({
+			processing: true,
+			serverSide: true,
+			ajax: {
+				url: "{{ url_for('t3sf.get_data') }}",
+				contentType: 'application/x-www-form-urlencoded',
+				type: 'POST',
+				data: function (data) {
+					// Add the filter value to the DataTables request data
+					data.phaseFilter = $('#phaseDropdown').val();
+					data.sectorFilter = $('#sectorDropdown').val();
+				}
+			},
+			columnDefs: [
+				{ 'className': "text-center", "targets": [1, 2] },
+				],
+			columns: [
+			{
+				className: 'dt-control',
+				orderable: false,
+				data: null,
+				defaultContent: '',
+			},
+			{ data: 'RelatedThreat' },
+			{ data: 'Receptor' },
+			{ data: 'Event' },
+			],
+		});
+
+		var msels_table = $('#mselsTable').DataTable({
+			processing: true,
+			serverSide: true,
+			ajax: {
+				url: "{{ url_for('t3sf.get_msels') }}",
+				contentType: 'application/x-www-form-urlencoded',
+				type: 'POST',
+			},
+			columnDefs: [
+				{ 'className': "text-center", "targets": [1, 2] },
+				],
+			columns: [
+			{
+				className: 'dt-control',
+				orderable: false,
+				data: null,
+				defaultContent: '',
+			},
+			{ data: 'Topic' },
+			{ data: 'Sector' },
+			{ data: 'Description' },
+			],
+		});
+
+		$('#injectsTable tbody').on('click', 'td.dt-control', function () {
+			var tr = $(this).closest('tr');
+			var row = table.row(tr);
+
+			if (row.child.isShown()) {
+				// This row is already open - close it
+				row.child.hide();
+				tr.removeClass('shown');
+			} else {
+				// Open this row
+				row.child(format(row.data())).show();
+				tr.addClass('shown');
+			}
+		});
+
+		$('#mselsTable tbody').on('click', 'td.dt-control', function () {
+			var tr = $(this).closest('tr');
+			var row = msels_table.row(tr);
+
+			if (row.child.isShown()) {
+				// This row is already open - close it
+				row.child.hide();
+				tr.removeClass('shown');
+			} else {
+				// Open this row
+				row.child(format_msel_events(row.data())).show();
+				tr.addClass('shown');
+			}
+		});
+	});
+
+	// Formatting function for row details
+	function format(d) {
+		var detailed_info = ( '<table style="width: 100%;"> ' +
+			'<tr>' +
+				'<td>ID:</td>' +
+				'<td>' + d.id + '</td>' +
+			'</tr>' +
+			'<tr>' +
+				'<td>Related Threat:</td>' +
+				'<td>' + d.RelatedThreat + '</td>' +
+			'</tr>' +
+			'<tr>' +
+				'<td>Receptor:</td>' +
+				'<td>' + d.Receptor + '</td>' +
+			'</tr>' +
+			'<tr>' +
+				'<td>Subject:</td>' +
+				'<td>' + d.Subject + '</td>' +
+			'</tr>' +
+			'<tr>' +
+				'<td>Event:</td>' +
+				'<td>' + d.Event + '</td>' +
+			'</tr>' +
+			'<tr>' +
+				'<td>Type Of Scenario:</td>' +
+				'<td>' + d.TypeOfScenario + '</td>' +
+			'</tr>' +
+			'<tr>' +
+				'<td>TPP:</td>' +
+				'<td>' + d.TPP + '</td>' +
+			'</tr>' +
+			'<tr>' +
+				'<td>Exercise Phase:</td>' +
+				'<td>' + d.ExercisePhase + '</td>' +
+			'</tr>' +
+			'<tr>' +
+				'<td>Sector:</td>' +
+				'<td>' + d.Sector + '</td>' +
+			'</tr>');
+		if (d.Poll !== "") {
+			var options = d.Poll.split("|");
+			var formattedOptions = options.map(option => `<div class="form-check form-check-inline"><input name="options" class="form-check-input" type="radio" id="${option}"><label class="form-check-label" for="${option}">${option}</label></div>`).join("");
+
+			detailed_info += ( '<tr>' +
+					'<td>Poll:</td>' +
+					'<td>' + formattedOptions + '</td>' +
+
+				'</tr>');
+		}
+
+		detailed_info += ('</table>' +
+			'<button class="btn btn-primary" id="addToMSELButton" data-id="' + d.id + '">Add to MSEL</button>'
+		);
+
+		return detailed_info;
+	}
+
+	function format_msel_events(d) {
+		var detailed_info = ( '<table style="width: 100%;"> ' +
+				'<tr>' +
+					'<td>ID:</td>' +
+					'<td>' + d.id + '</td>' +
+				'</tr>' +
+				'<tr>' +
+					'<td>Topic:</td>' +
+					'<td>' + d.Topic + '</td>' +
+				'</tr>' +
+				'<tr>' +
+					'<td>Sector:</td>' +
+					'<td>' + d.Sector + '</td>' +
+				'</tr>' +
+				'<tr>' +
+					'<td class="text-nowrap">Number of events:</td>' +
+					'<td>' + d.EventsAmount + '</td>' +
+				'</tr>' +
+				'<tr>' +
+					'<td>Receptors:</td>' +
+					'<td>' + d.Receptors + '</td>' +
+				'</tr>' +
+			'</table>' +
+			'<button class="btn btn-primary" id="useMSELButton" data-id="' + d.EventsIDs + '">Add MSEL</button>'
+		);
+
+		return detailed_info;
+	}
+
+	$(document).on('click', '#addToMSELButton', function() {
+		var id = [$(this).data('id')];
+		addToMSEL(id, "unique");
+		animateButton($(this));
+	});
+
+	$(document).on('click', '#useMSELButton', function() {
+		var ids = $(this).data('id');
+		addToMSEL(ids.split(",").map(Number), "MSEL");
+		animateButton($(this));
+		$('#mselsModal').modal('hide');
+	});
+
+	function addToMSEL(id, from) {
+		// Add the ID to the array
+		selectedInjects.push(id);
+		
+		// GET JSON editor data
+		var current_json = editor.get().json !== undefined ? editor.get().json : [];
+
+		getInjectsData(id, from).then(new_injects => {
+			var my_new_json = current_json.concat(new_injects);
+			editor.set({text:undefined, json:my_new_json});
+			$("#json-editor-container").removeClass("d-none");
+			$("#saveDocument").removeClass("d-none");
+		})
+		.catch(error => {
+			console.error(error);
+		});
+	}
+
+	async function getInjectsData(ids, from) {
+		try {
+			// Make the API call to "/get-injects" with the ids
+			const response = await fetch('/get-injects', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ ids, from })
+			});
+
+			// Check if the API call was successful
+			if (response.ok) {
+				// Retrieve the JSON object from the response
+				const data = await response.json();
+				return data;
+			} else {
+				// Handle the error if the API call was not successful
+				throw new Error('API call failed');
+			}
+		} catch (error) {
+			// Handle any other errors that may occur
+			console.error(error);
+			throw error;
+		}
+	}
+
+	function animateButton(clickedButton) {
+		var button = clickedButton[0];
+
+		var action_text = "Added to MSEL";
+		var default_text = "Add to MSEL";
+
+		if (button.id == "useMSELButton") {
+			action_text = "MSEL Added";
+			default_text = "Add MSEL";
+		}
+
+		// Disable button during animation
+		button.disabled = true;
+
+		// Change button class to start pulse animation
+		button.classList.add("pulse-animation");
+		button.classList.add("btn-success");
+
+		// Change button text during pulse animation
+		button.innerHTML = action_text;
+
+		// Wait for the pulse animation to end
+		setTimeout(function() {
+			// Enable button
+			button.disabled = false;
+
+			// Reset button class and text with fade-in animation
+			button.classList.remove("pulse-animation");
+			button.classList.remove("btn-success");
+			button.innerHTML = default_text;
+		}, 1000);
+	}
+
+	// Avoid loosing progress
+	window.addEventListener('beforeunload', function (event) {
+
+		const contents = editor.get().json;
+
+		if (contents) {
+			// Cancel the event (modern browsers will ignore the text)
+			event.preventDefault();
+
+			// Chrome requires the event to be assigned a returnValue
+			event.returnValue = '';
+
+			// Display the confirmation message
+			return 'Are you sure you want to leave? Your progress will be lost.';
+		}
+	});
+
+	// Get filters for events
+	$(document).ready(function() {
+		// Fetch the options from the Flask endpoint
+		$.getJSON('/get-filters', function(data) {
+			var phaseSelect = $('#phaseDropdown');
+			var sectorSelect = $('#sectorDropdown');
+
+			// Populate options for ExercisePhase
+			$.each(data.ExercisePhase, function(index, option) {
+				phaseSelect.append($('<option>').val(option).text(option));
+			});
+
+			// Populate options for Sector
+			$.each(data.Sector, function(index, sectors) {
+				var individualSectors = sectors.split(", ");
+				$.each(individualSectors, function(index, sector) {
+					if (sector.toLowerCase() === "all") {
+						return false; // It's already on the dropdown
+					}
+					var capitalizedSector = sector.charAt(0).toUpperCase() + sector.slice(1);
+					sectorSelect.append($('<option>').val(sector).text(capitalizedSector));
+				});
+			});
+		});
+	});
+</script>
+{% endblock %}

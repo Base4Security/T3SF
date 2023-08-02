@@ -104,3 +104,18 @@ CORE functions are those functions that are to be used regardless of the selecte
 
 		:type: ``bool``
 		:required: ``False``
+
+.. py:function:: check_status(reset: bool = False) -> Union[bool, str]
+	:async:
+
+	Monitors the framework's status. It can reset flags, handle framework breaks, and wait until the framework is ready to proceed. Its purpose is to ensure smooth operation and synchronization within the framework.
+
+	.. confval:: reset
+
+		Reset flag to indicate whether to reset the process_wait and process_quit flags.
+
+		:type: ``bool``
+		:default: ``False``
+		:required: ``False``
+
+	:return: Returns a boolean indicating the status of the framework or 'break' if process_quit is True.

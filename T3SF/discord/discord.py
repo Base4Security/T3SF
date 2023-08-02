@@ -3,7 +3,7 @@ import asyncio
 import random
 import json
 import re 
-from T3SF import utils
+from T3SF import utils, T3SF_Logger
 
 class Discord(object):
 	def __init__(self, bot):
@@ -62,10 +62,13 @@ class Discord(object):
 						past_channel = category.name
 						pass
 
+			T3SF_Logger.emit(message=f'Please confirm the Regular Expression for the inboxes on the gm-chat!', message_type="INFO")
+
 			await T3SF_instance.response_auto.edit(embed=discord.Embed(
 			 title = "ℹ️ Regex detected!",
 			 description = f"Please confirm if the regex detected for the channels, is correct so we can get the inboxes!\n\nExample:\nGroup - Legal\nThe regex should be `Group -`\n\nDetected regex: `{regex}`",
 			 color = 0x77B255).set_image(url=image_example).set_footer(text="Please answer with [Yes(Y)/No(N)]"))
+
 
 			def check_regex_channels(msg):
 				if started_from_gui:
@@ -120,6 +123,8 @@ class Discord(object):
 
 			await self.EditMessage(T3SF_instance=T3SF_instance, style="custom", variable="T3SF_instance.response_auto", color="GREEN", title=f"📩  Inboxes fetched! [{len(T3SF_instance.inboxes_all)}]", description=mensaje_inboxes)
 
+			T3SF_Logger.emit(message=f'Confirmed! Inboxes ready', message_type="INFO")
+
 		return True
 
 	async def InjectHandler(self, T3SF_instance):
@@ -168,8 +173,8 @@ class Discord(object):
 		diff_secs = diff * 60
 
 		view = discord.ui.View()
-		view.add_item(discord.ui.Button(style=discord.ButtonStyle.primary,label=poll_options[0], custom_id="poll|"+poll_options[0]))
-		view.add_item(discord.ui.Button(style=discord.ButtonStyle.primary,label=poll_options[1], custom_id="poll|"+poll_options[1]))
+		for option in poll_options:
+			view.add_item(discord.ui.Button(style=discord.ButtonStyle.primary, label=option, custom_id="poll|" + option))
 
 		all_data = all_data+ f"\n\nYou have {diff} minute(s) to answer this poll!"
 

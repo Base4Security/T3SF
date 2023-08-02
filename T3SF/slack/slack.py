@@ -1,5 +1,5 @@
 from collections import Counter
-from T3SF import utils
+from T3SF import T3SF_Logger, utils
 import random
 import json
 import re 
@@ -182,6 +182,8 @@ class Slack(object):
 			
 			T3SF_instance.regex_ready = True
 
+			T3SF_Logger.emit(message=f'Confirmed! Inboxes ready', message_type="INFO")
+
 		elif T3SF_instance.fetch_inboxes == True:
 
 			T3SF_instance.response_auto = await self.SendMessage(channel = T3SF_instance._ctx['channel'], color="CYAN", title="💬 Fetching inboxes...", description=f"Please wait while we fetch all the inboxes in this server!")
@@ -221,6 +223,7 @@ class Slack(object):
 			
 			T3SF_instance.response_auto = await self.EditMessage(response=T3SF_instance.response_auto, color="GREEN", title = "ℹ️ Regex detected!", description = f"Please confirm if the regex detected for the channels, is correct so we can get the inboxes!\n\nExample:\ninbox-legal\nThe regex should be `inbox-`\n\n*Detected regex:* `{regex}`\n\n\nPlease select your answer below.", image=image, buttons = buttons)
 			T3SF_instance.regex_ready = False
+			T3SF_Logger.emit(message=f'Please confirm the Regular Expression for the inboxes on the gm-chat!', message_type="INFO")
 
 		else:
 			mensaje_inboxes = ""
@@ -291,7 +294,15 @@ class Slack(object):
 
 		description = T3SF_instance._inject["Script"] + f"\n\nYou have {diff} minute(s) to answer this poll!"
 
-		buttons = [{"text": poll_options[0], "style": "primary", "value": 'option1', "action_id": "option1"},{"text":poll_options[1], "style": "primary", "value": "option2","action_id": "option2"}]
+		buttons = []
+
+		for i, option in enumerate(poll_options, start=1):
+			buttons.append({
+				"style": "primary",
+				"text": option,
+				"value": f"option{i}",
+				"action_id": f"option{i}"
+				})
 
 		T3SF_instance.response_poll = await self.SendMessage(channel = T3SF_instance.inboxes_all[player], title=T3SF_instance._inject['Subject'], description=description, image=image, buttons=buttons, color="YELLOW")
 

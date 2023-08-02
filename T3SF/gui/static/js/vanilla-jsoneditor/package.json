@@ -1,0 +1,36 @@
+{
+  "name": "vanilla-jsoneditor",
+  "description": "A web-based tool to view, edit, format, transform, and validate JSON",
+  "version": "0.17.8",
+  "homepage": "https://jsoneditoronline.org",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/josdejong/svelte-jsoneditor.git"
+  },
+  "type": "module",
+  "svelte": "./index.js",
+  "module": "./index.js",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "sideEffects": false,
+  "license": "ISC",
+  "exports": {
+    ".": "./index.js",
+    "./CHANGELOG.md": "./CHANGELOG.md",
+    "./index.d.ts": "./index.d.ts",
+    "./index.js": "./index.js",
+    "./index.js.map": "./index.js.map",
+    "./LICENSE.md": "./LICENSE.md",
+    "./README.md": "./README.md",
+    "./SECURITY.md": "./SECURITY.md",
+    "./themes/jse-theme-dark.css": "./themes/jse-theme-dark.css",
+    "./themes/jse-theme-default.css": "./themes/jse-theme-default.css",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "*"
+  ],
+  "scripts": {},
+  "dependencies": {},
+  "devDependencies": {}
+}

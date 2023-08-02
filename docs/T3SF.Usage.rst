@@ -165,7 +165,7 @@ Here is the first inject from the example in the repo.
 
 .. confval:: Poll
 
-	Set up a survey to be sent to the players, where they have time to answer depending on the two options.
+	Set up a survey to be sent to the players, where they have time to answer depending on the options.
 
 	.. note:: 
 		This key is only valid in :doc:`./Discord` and :doc:`./Slack`, due to platform restrictions.

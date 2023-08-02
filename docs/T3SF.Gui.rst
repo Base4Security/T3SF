@@ -15,25 +15,21 @@ Index ``(/)``
 	GET parameters	 ``None``
 	===============  =======================
 
-	This route provides a real-time log display with user-friendly controls to start and stop exercises with just two clicks. It also features a log level filter, which allows game-master/admins to reduce noise in the logs by only displaying relevant information. If necessary, game-master can clear the previous logs directly from the interface to obtain a clean view before starting a new exercise.
+	This route provides a real-time log display with user-friendly controls to start, pause, resume and stop exercises with a click. It also features a log level filter, which allows game-master/admins to reduce noise in the logs by only displaying relevant information. If necessary, game-master can clear the previous logs directly from the interface to obtain a clean view before starting a new exercise.
 
 	.. image:: ./images/gui/index.png
 
-
-MSEL Viewer ``(/msel-viewer)``
+MSEL Playground ``(/msel-playground)``
 --------------------------------
 	===============  ======================= 
-	Renders          ``msel_viewer.html``
+	Renders          ``msel_playground.html``
 	POST parameters	 ``None``
 	GET parameters	 ``None``
 	===============  =======================
 
-	This route provides an MSEL viewer functionality that allows admins to load and view the JSON file directly in the browser. The viewer provides pagination to navigate through the list of injects easily.
+	The MSEL Playground, is an enhanced viewer that now supports .xlsx, .xls, and .json file formats. Easily load and view your MSELs in the browser, with pagination for seamless navigation through injects. Export your MSEL to .json, and enjoy real-time editing, backed by event and scenario databases. Explore, edit, and save your work effortlessly in the MSEL Playground.
 
-	The functionality works by accepting a JSON file and using JavaScript to parse the file and display all the injects in a user-friendly manner. The pagination feature allows admins to view injects in manageable groups and facilitates navigation through the injects.
-
-	.. image:: ./images/gui/msel_viewer.png
-
+	.. image:: ./images/gui/msel_playground.png
 
 Environment creation ``(/env-creation)``
 -----------------------------------------------
@@ -53,8 +49,7 @@ Environment creation ``(/env-creation)``
 
 	.. image:: ./images/gui/env_creation.png
 
-
-Exercise Starter ``(/start)``
+Start Exercise ``(/start)``
 -----------------------------------------------
 	===============  =================================================== 
 	Returns          ``Started``
@@ -65,7 +60,39 @@ Exercise Starter ``(/start)``
 
 	Is responsible for initiating the exercise by calling the ``run_async_incidents`` function based on the selected platform. Once the function is called, the exercise will begin, and the function will continuously execute until all incidents are completed.
 
-Framework Stopper ``(/stop)``
+Pause Exercise ``(/pause)``
+-----------------------------------------------
+	===============  ======================= 
+	Returns          ``We are waiting``
+	POST parameters	 ``None``
+	GET parameters	 ``None``
+	===============  =======================
+
+
+	Thi endpoint enables the pausing of an exercise by setting a flag in the utils module to indicate that the process should wait. It returns a simple message, "We are waiting", confirming the pause action.
+
+Resume Exercise ``(/resume)``
+-----------------------------------------------
+	===============  ======================= 
+	Returns          ``We are processing again``
+	POST parameters	 ``None``
+	GET parameters	 ``None``
+	===============  =======================
+
+	The `/resume` endpoint resumes the exercise by resetting the flags in the utils module. It sets the ``process_wait`` flag to False, indicating that the process can continue. It also sets ``process_quit`` to False and ``process_started`` to True. The endpoint returns the message "We are processing again" to signify the resumption of the exercise.
+
+Stop Exercise ``(/stop)``
+-----------------------------------------------
+	===============  ======================= 
+	Returns          ``We are Stoping``
+	POST parameters	 ``None``
+	GET parameters	 ``None``
+	===============  =======================
+
+	The route `/stop` is used to stop the exercise in progress by setting the ``process_quit`` flag in the utils module to True. This flag indicates that the exercise should be halted. The endpoint returns the message "We are stopping" to confirm that the stopping process has been triggered.
+
+
+Kill script ``(/abort)``
 -----------------------------------------------
 	===============  ======================= 
 	Returns          ``Shutting down...``
@@ -73,7 +100,7 @@ Framework Stopper ``(/stop)``
 	GET parameters	 ``None``
 	===============  =======================
 
-	The route `/stop` is used to stop the exercise in progress. When this route is accessed, it kills the bot by sending an "INFO" message with a timestamp using the :py:meth:`MessageAnnouncer` class. Then, it waits for 1 second and kills the process with the SIGTERM signal. Finally, it returns a response to confirm that the process has stopped.
+	The route `/abort` is used to kill the script in case of an emergency. When this route is accessed, it kills the bot by sending an "INFO" message with a timestamp using the :py:meth:`MessageAnnouncer` class. Then, it waits for 0.5 seconds and kills the process with the SIGTERM signal. Finally, it returns a response to confirm that the process has stopped.
 
 Environment creation trigger ``(/create)``
 -------------------------------------------------
@@ -111,7 +138,6 @@ Env Creation Logs Stream ``(/stream_news)``
 
 	This path acts in the same way as `/stream <#logs-stream-stream>`_. The only difference between the two is that this route does not show the old logs, but only the new ones. This path is used to display the logs on the environment creation page.
 
-
 Logs cleaner ``(/clear)``
 ---------------------------------------------------
 	===============  ======================= 
@@ -121,6 +147,103 @@ Logs cleaner ``(/clear)``
 	===============  =======================
 
 	This route clears the logs stored in a file named ``logs.txt``. It is used to remove old log data that may no longer be relevant. The function opens the file in write mode and then immediately closes it, which effectively clears all the data in the file. It then returns a message confirming that the logs have been cleared.
+
+Events database fetcher ``(/data)``
+---------------------------------------------------
+	===============  ===================================================
+	HTTP Methods     ``POST``
+	Returns          JSON response containing DataTables-compatible data
+	POST parameters  ``draw``, ``start``, ``length``, ``search[value]``, ``phaseFilter``, ``sectorFilter``, ``order[0][column]``, ``order[0][dir]``
+	===============  ===================================================
+
+	The `/data` endpoint retrieves data from an SQLite database based on the provided DataTables request parameters. The endpoint accepts a POST request and expects the following parameters:
+
+	- ``draw``: An integer representing the draw counter to ensure data integrity.
+	- ``start``: An integer representing the starting index of the data to retrieve.
+	- ``length``: An integer representing the number of records to fetch.
+	- ``search[value]``: A string representing the search value to filter the data.
+	- ``phaseFilter``: An optional string representing the selected filter for the exercise phase.
+	- ``sectorFilter``: An optional string representing the selected filter for the sector.
+	- ``order[0][column]``: An integer representing the index of the column to sort by.
+	- ``order[0][dir]``: A string representing the sorting direction (asc or desc).
+
+	The endpoint connects to the SQLite database and constructs an SQL query based on the provided parameters. It retrieves the filtered and paginated data from the "events" table. The query also considers the selected filters and applies them accordingly.
+
+	The resulting data is transformed into a JSON format compatible with DataTables. The response includes the following attributes:
+
+	- ``draw``: The same draw value received in the request.
+	- ``recordsTotal``: The total number of records in the "events" table.
+	- ``recordsFiltered``: The total number of records after applying the search and filters.
+	- ``data``: An array of dictionaries representing the retrieved data rows.
+
+MSELs database fetcher ``(/msels-data)``
+---------------------------------------------------
+	===============  ===================================================
+	HTTP Methods     ``POST``
+	Returns          JSON response containing DataTables-compatible data
+	POST parameters  ``draw``, ``start``, ``length``, ``search[value]``, ``order[0][column]``, ``order[0][dir]``
+	===============  ===================================================
+
+	The `/msels-data` endpoint retrieves data from an SQLite database related to MSELS (Master Sequence of Events List) information. It expects a POST request with the following parameters:
+
+	- ``draw``: An integer representing the draw counter to ensure data integrity.
+	- ``start``: An integer representing the starting index of the data to retrieve.
+	- ``length``: An integer representing the number of records to fetch.
+	- ``search[value]``: A string representing the search value to filter the data.
+	- ``order[0][column]``: An integer representing the index of the column to sort by.
+	- ``order[0][dir]``: A string representing the sorting direction (asc or desc).
+
+	The endpoint connects to the SQLite database and constructs an SQL query based on the provided parameters. It retrieves the filtered and paginated data from the "MSELS_info" table. The query considers the search value, sorting column, and sorting direction.
+
+	The resulting data is transformed into a JSON format compatible with DataTables. The response includes the following attributes:
+
+	- ``draw``: The same draw value received in the request.
+	- ``recordsTotal``: The total number of records in the "MSELS_info" table.
+	- ``recordsFiltered``: The total number of records after applying the search.
+	- ``data``: An array of dictionaries representing the retrieved data rows.
+
+Injects/Events fetcher ``(/get-injects)``
+---------------------------------------------------
+	===============  ===================================================
+	HTTP Methods     ``POST``
+	Returns          JSON response containing inject data
+	POST parameters  ``ids``, ``from``
+	===============  ===================================================
+
+	The `/get-injects` endpoint retrieves inject data based on the provided IDs. It expects a POST request with the following parameters:
+
+	- ``ids``: A list of IDs representing the injects to retrieve.
+	- ``from``: A string indicating the source of the injects ("MSEL" or empty for the default "events" table).
+
+	The endpoint connects to the SQLite database and retrieves the injects based on the given IDs. It fetches the relevant data from either the "events" table or the "MSELS_events" table, depending on the source specified.
+
+	The resulting inject data is returned as a JSON response, containing an array of dictionaries representing the injects.
+
+MSELs database fetcher ``(/get-filters)``
+---------------------------------------------------
+	===============  ===================================================
+	HTTP Methods     ``GET``
+	Returns          JSON response containing filter options
+	===============  ===================================================
+
+	The `/get-filters` endpoint retrieves the filter options for the ExercisePhase and Sector dropdowns. It expects a GET request without any parameters.
+
+	The endpoint connects to the SQLite database and retrieves the distinct values for the ExercisePhase and Sector columns from the "events" table. It converts the obtained options into lists of strings and removes any duplicates.
+
+	The resulting filter options are returned as a JSON response, including the ExercisePhase and Sector options as separate lists.
+
+Framework Status checker ``(/framework-status)``
+---------------------------------------------------
+	===============  ===================================================
+	HTTP Methods     ``GET``
+	Returns          JSON response containing framework status
+	===============  ===================================================
+
+	The `/framework-status` endpoint retrieves the status of the framework. It expects a GET request without any parameters.
+
+	The endpoint checks the status flags stored in the ``utils`` module to determine the current state of the framework. It provides information about whether the framework is actively running, paused, stopped, or in the process of starting.
+
+	The resulting framework status is returned as a JSON response, containing the current status as a string.
 
 
 Module
@@ -135,11 +258,32 @@ The file structure is shown below:
 	GUI
 	├── core.py
 	├── __init__.py
+	├── static
+	│	├── imgs
+	│	│	├── icon.png
+	│	│	├── logo-dark.png
+	│	│	└── logo-light.png
+	│	└── js
+	│		├── bootstrap_toasts.js
+	│		├── copy.js
+	│		├── theme_switcher.js
+	│		└── vanilla-jsoneditor
+	│			├── CHANGELOG.md
+	│			├── index.d.ts
+	│			├── index.js
+	│			├── index.js.map
+	│			├── LICENSE.md
+	│			├── package.json
+	│			├── README.md
+	│			├── SECURITY.md
+	│			└── themes
+	│				├── jse-theme-dark.css
+	│				└── jse-theme-default.css
 	└── templates
-	    ├── base.html
-	    ├── env_creation.html
-	    ├── index.html
-	    └── msel_viewer.html
+		├── base.html
+		├── env_creation.html
+		├── index.html
+		└── msel_playground.html
 
 
 .. py:class:: GUI(platform_run, MSEL, import_name=__name__, *args, **kwargs)
@@ -169,7 +313,7 @@ The file structure is shown below:
 
 	.. py:method:: start_flask_app()
 
-		This method will start Flask, making it listen on ``127.0.0.1:5000`` and threading.
+		This method will start Flask threaded and making it listen on ``127.0.0.1:5000`` when running on your machine or on ``0.0.0.0:5000`` when running on a Docker container.
 
 	.. py:method:: start()
 
