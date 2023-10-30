@@ -188,17 +188,22 @@
 	};
 
 	$(document).ready(function () {
-		$.ajax({ 
-			type: "GET",
-			url: "framework-status",
-			success: function(data){
-				changeFrameworkStatus(data.status);
-			},
-			error: function(xhr){
-				b5toast.show("danger", "Error ocurred when checking status", "Please check the logs for more information", 3000);
-			}
-		});
+		get_framework_status()
 	});
+
+	function get_framework_status() {
+	    $.ajax({
+	        type: "GET",
+	        url: "framework-status",
+	        success: function (data) {
+	            changeFrameworkStatus(data.status);
+	            return(data.status)
+	        },
+	        error: function (xhr) {
+	            b5toast.show("danger", "Error occurred when checking status", "Please check the logs for more information", 3000);
+	        }
+	    });
+	}
 
 	// Handle filter dropdown change event	
 	$('#logs-level-dropdown').change(function() {
@@ -227,7 +232,7 @@
 
 	// Handle Start button click event
 	$('#start-button').click(function() {
-		{%- if platform == "discord" -%}
+		{%- if platform.lower() == "discord" -%}
 		var serverId = localStorage.getItem("discordServerId");
 
 		if (!serverId) {
@@ -390,13 +395,14 @@
 
 	function handle_sse_start(event){
 		console.log("Getting server updates");
-		changeFrameworkStatus("active");
+		// changeFrameworkStatus("active");
+		get_framework_status()
 	};
 
 	function handle_sse_errors(event){
 		console.log('EventSource error:', event);
 		changeFrameworkStatus("abort");
-
+		// get_framework_status()
 	};
 
 	// Add or remove the "active" class to the status indicator

@@ -1,5 +1,6 @@
 from discord.ext import commands
 from dotenv import load_dotenv
+from T3SF import utils
 import discord
 import asyncio
 import re,os
@@ -60,11 +61,67 @@ class create_bot():
 			"""
 			try:
 				global T3SF_instance
+
+				# Setting variables for GUI
+				utils.process_quit = False
+				utils.process_wait = False
+				utils.process_started = True
+
 				T3SF_instance = T3SF.T3SF(platform="discord", bot=bot_discord)
 				await T3SF_instance.ProcessIncidents(MSEL = config_MSEL, function_type = "start", ctx=ctx)
 
 			except Exception as e:
 				print("ERROR - Start function")
+				print(e)
+				raise
+
+		@bot_discord.command(name="stop", help='Stops the Incidents Game. Usage -> !stop')
+		@commands.has_role("Game Master")
+		async def stop_command(ctx, *, query=None):
+			"""
+			Retrieves the !stop command and stops the incidents.
+			"""
+			try:
+				response = await ctx.send(embed=discord.Embed(colour=discord.Colour.red(), title=":stop_button: Exercise stopped", description="The exercise has stopped, start it again when you are ready!\n**Please note that maybe one remaining inject will be sent.**"))
+				# Setting variables for GUI
+				utils.process_quit = True
+
+			except Exception as e:
+				print("ERROR - Stop function")
+				print(e)
+				raise
+
+		@bot_discord.command(name="pause", help='Pauses the Incidents Game. Usage -> !pause')
+		@commands.has_role("Game Master")
+		async def pause_command(ctx, *, query=None):
+			"""
+			Retrieves the !pause command and stops the incidents.
+			"""
+			try:
+				response = await ctx.send(embed=discord.Embed(colour=discord.Colour.yellow(), title=":pause_button: Exercise paused", description="The exercise is now paused, resume it when you are ready!\n**Please note that maybe one remaining inject will be sent.**"))
+				# Setting variables for GUI
+				utils.process_wait = True
+
+			except Exception as e:
+				print("ERROR - Pause function")
+				print(e)
+				raise
+
+		@bot_discord.command(name="resume", help='Resumes the Incidents Game. Usage -> !resume')
+		@commands.has_role("Game Master")
+		async def resume_command(ctx, *, query=None):
+			"""
+			Retrieves the !resume command and stops the incidents.
+			"""
+			try:
+				response = await ctx.send(embed=discord.Embed(colour=discord.Colour.green(), title=":play_pause: Exercise resumed", description="The exercise has been resumed at the point where it was interrupted."))
+				# Setting variables for GUI
+				utils.process_wait = False
+				utils.process_quit = False
+				utils.process_started = True
+
+			except Exception as e:
+				print("ERROR - Resume function")
 				print(e)
 				raise
 

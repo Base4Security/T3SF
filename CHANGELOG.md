@@ -1,6 +1,19 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [2.5.1] - 2023-10-30
+Version 2.5.1 includes minor bug fixes and some new commands for platform-specific bots.
+
+### New
+- New management commands for Discord's Bot
+  - !pause / !resume / !stop are the new commands for the platform. They work exactly as the buttons on the GUI.
+- New management commands for Slack's Bot
+  - !pause / !resume / !stop are the new commands for the platform. They work exactly as the buttons on the GUI.
+
+### Fixes
+- Fixed a bug where if upper case was used when setting the platform to "Discord", the GUI would not send the server ID.
+- Resolved an issue related to the framework's status in the GUI. When changing the log verbose level, the only button that appeared was the "Start" button.
+
 ## [2.5] - 2023-08-02
 Upgrade to version 2.5 of the T3SF framework for exciting new features, bug fixes, and an enhanced user experience. This release introduces the MSEL Playground, Dark mode, a Database with AI-generated Events, and much more!
 

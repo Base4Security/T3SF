@@ -3,6 +3,7 @@ from slack_bolt.app.async_app import AsyncApp
 from slack_sdk.errors import SlackApiError
 from dotenv import load_dotenv
 from .slack import Slack
+from T3SF import utils
 import warnings
 import asyncio
 import os, re
@@ -46,11 +47,64 @@ class create_bot():
 			"""
 			try:
 				global T3SF_instance
+
+				# Setting variables for GUI
+				utils.process_quit = False
+				utils.process_wait = False
+				utils.process_started = True
+
 				T3SF_instance = T3SF.T3SF(platform="slack", app=app_slack)
 				await T3SF_instance.ProcessIncidents(MSEL = config_MSEL, function_type = "start", ctx=message)
 
 			except Exception as e:
 				print("ERROR - Start function")
+				print(e)
+				raise
+
+		@app_slack.message("!stop")
+		async def stop(message, say):
+			"""
+			Retrieves the !stop command and stops the incidents.
+			"""
+			try:
+				await say(attachments=Slack.Formatter(color="RED", title=":black_square_for_stop: Exercise stopped", description="The exercise has stopped, start it again when you are ready!\n*Please note that maybe one remaining inject will be sent.*"))
+				# Setting variables for GUI
+				utils.process_quit = True
+
+			except Exception as e:
+				print("ERROR - Stop function")
+				print(e)
+				raise
+
+		@app_slack.message("!pause")
+		async def pause(message, say):
+			"""
+			Retrieves the !pause command and pauses the incidents.
+			"""
+			try:
+				# Setting variables for GUI
+				await say(attachments=Slack.Formatter(color="YELLOW", title=":double_vertical_bar: Exercise paused", description="The exercise is now paused, resume it when you are ready!\n*Please note that maybe one remaining inject will be sent.*"))
+				utils.process_wait = True
+
+			except Exception as e:
+				print("ERROR - Pause function")
+				print(e)
+				raise
+
+		@app_slack.message("!resume")
+		async def resume(message, say):
+			"""
+			Retrieves the !resume command and resumes to fetch and send the incidents.
+			"""
+			try:
+				await say(attachments=Slack.Formatter(color="GREEN", title=":black_right_pointing_triangle_with_double_vertical_bar: Exercise resumed", description="The exercise has been resumed at the point where it was interrupted."))
+				# Setting variables for GUI
+				utils.process_wait = False
+				utils.process_quit = False
+				utils.process_started = True
+
+			except Exception as e:
+				print("ERROR - Resume function")
 				print(e)
 				raise
 
